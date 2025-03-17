@@ -1,0 +1,61 @@
+body {
+    padding: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #005cbb;
+    color: white;
+}
+
+.loading-container,
+.no-invoice-message {
+    text-align: center;
+    margin-top: 28vh;
+}
+
+.loading-gif {
+    width: 10rem;
+    object-fit: cover;
+}
+
+.text-end-align {
+    text-align: end;
+}
+
+.preheader-container {
+    padding: 8px;
+    margin: 0;
+    display: grid;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 20px;
+    padding: 8px;
+}
+
+.filter-container {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    column-gap: 20px;
+}
+
+.carton-span {
+    font-size: 12px;
+}

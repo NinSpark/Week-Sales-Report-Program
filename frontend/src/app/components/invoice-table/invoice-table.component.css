@@ -6,6 +6,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    font-size: 0.72vw;
 }
 
 th,
@@ -38,7 +39,8 @@ th {
 .preheader-container {
     padding: 8px;
     margin: 0;
-    display: grid;
+    display: flex;
+    gap: 32px;
 }
 
 .header-container {
@@ -58,4 +60,8 @@ th {
 
 .carton-span {
     font-size: 12px;
+}
+
+.mdc-label {
+    padding-left: 0 !important;
 }

@@ -141,14 +141,13 @@ app.get("/filtered-invoices", async (req, res) => {
         let shipInfoList = JSON.parse(shipInfo);
 
         let query = `
-            SELECT i.DocKey, i.DocNo, i.DebtorName, i.ShipInfo, i.DocDate, 
+            SELECT i.DocKey, i.DocNo, i.DebtorName, i.ShipInfo, i.DocDate, i.BranchCode,
                    d.Description, d.Qty, d.SubTotal, d.SmallestQty, d.ProjNo
             FROM IV i
             JOIN IVDTL d ON i.DocKey = d.DocKey
             WHERE i.SalesAgent = @salesAgent
               AND i.DocDate BETWEEN @startDate AND @endDate
-            AND ItemCode NOT LIKE 'Z%'
-        `;
+            AND ItemCode NOT LIKE 'Z%'`;
 
         if (dbType == 'kai_shen' && shipInfoList.length > 0) {
             query += ` AND i.ShipInfo IN (${shipInfoList.map((_, i) => `@ship${i}`).join(",")})`;
@@ -251,6 +250,28 @@ app.get("/filtered-credit-notes", async (req, res) => {
     } catch (error) {
         console.error("Database query error:", error);
         res.status(500).send("Error retrieving invoices.");
+    }
+});
+
+// **Get Branch details from dbo.Branch based on Branch Code**
+app.get('/api/get-branch-details', async (req, res) => {
+    try {
+        const branchCode = req.query.branchCode;
+        const dbType = req.query.db; // 'kai_shen' or 'lenso'
+        if (!branchCode) {
+            return res.status(400).send('Missing branchCode parameter');
+        }
+
+        const pool = await getDBPool(dbType);
+        const request = pool.request();
+        request.input('branchCode', sql.VarChar, branchCode);
+
+        const result = await request.query(`SELECT * FROM dbo.Branch WHERE BranchCode = @branchCode`);
+
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Error fetching branch details:', err);
+        res.status(500).send('Server error');
     }
 });
 

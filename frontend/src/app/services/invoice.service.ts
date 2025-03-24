@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class InvoiceService {
-  private domain = "http://localhost:3000";
-  // private domain = "http://192.168.0.254:82";
+  // private domain = "http://localhost:3000";
+  private domain = "http://192.168.0.254:3000";
 
   private agentUrl = `${this.domain}/api/sales-agents`;
   private apiUrl = `${this.domain}/api/invoices`;
@@ -16,6 +16,7 @@ export class InvoiceService {
   private creditNoteUrl = `${this.domain}/api/credit-notes`;
   private creditNoteDetailsUrl = `${this.domain}/api/credit-notes-details`;
   private filteredCNUrl = `${this.domain}/filtered-credit-notes`;
+  private getBranchUrl = `${this.domain}/api/get-branch-details`;
 
   constructor(private http: HttpClient) { }
 
@@ -67,5 +68,11 @@ export class InvoiceService {
         shipInfo: JSON.stringify(shipInfo)
       }
     });
+  }
+
+  getBranchDetails(branchCode: string, isLensoDB: boolean) {
+    const dbParam = isLensoDB ? 'lenso' : 'kai_shen';
+    const url = branchCode ? `${this.getBranchUrl}?branchCode=${branchCode}&db=${dbParam}` : this.getBranchUrl;
+    return this.http.get<any[]>(url);
   }
 }

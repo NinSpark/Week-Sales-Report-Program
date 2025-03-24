@@ -4,6 +4,7 @@
     <div class="preheader-container">
         <mat-checkbox [(ngModel)]="isLensoDB" (change)="toggleDB()">Lenso Report</mat-checkbox>
         <mat-checkbox *ngIf="!isLensoDB" [(ngModel)]="showCarton">Show Carton</mat-checkbox>
+        <mat-checkbox [(ngModel)]="showSummaryOnly">Show Summary Only</mat-checkbox>
     </div>
     <div class="header-container">
         <div class="filter-container">
@@ -61,9 +62,10 @@
 
         <table *ngIf="!isLoading && invoiceDetails.length > 0" id="invoiceTable">
             <thead>
-                <tr>
+                <tr *ngIf="!showSummaryOnly">
                     <th></th>
                     <th>Debtor</th>
+                    <th *ngIf="listHasBranch">Branch</th>
                     <th>Doc No</th>
                     <th>Item Name</th>
                     <th>Doc Date</th>
@@ -71,15 +73,24 @@
                     <th>SubTotal (MYR)</th>
                     <th>Litres</th>
                 </tr>
+                <tr *ngIf="showSummaryOnly">
+                    <th colspan="6">Division</th>
+                    <th>Qty</th>
+                    <th>SubTotal (MYR)</th>
+                    <th>Litres</th>
+                </tr>
             </thead>
             <tbody>
                 <ng-container *ngFor="let detail of invoiceDetails; let i = index">
-                    <tr>
-                        <td [ngStyle]="{'border-bottom': isNextProjNoSame(i, false, false) ? '1px solid transparent' : '1px solid #ddd' }">
+                    <tr *ngIf="!showSummaryOnly">
+                        <td [ngStyle]="{'border-bottom': isNextProjNoSame(i, 0) ? '1px solid transparent' : '1px solid #ddd' }">
                             <span *ngIf="i === 0 || detail.ProjNo !== invoiceDetails[i - 1].ProjNo">{{ detail.ProjNo }}</span>
                         </td>
-                        <td [ngStyle]="{'border-bottom': isNextDebtorSame(i, false, false) ? '1px solid transparent' : '1px solid #ddd' }">
+                        <td [ngStyle]="{'border-bottom': isNextDebtorSame(i, 0) ? '1px solid transparent' : '1px solid #ddd' }">
                             <span *ngIf="i === 0 || detail.DebtorName !== invoiceDetails[i - 1].DebtorName || detail.ProjNo !== invoiceDetails[i - 1].ProjNo">{{ detail.DebtorName }}</span>
+                        </td>
+                        <td *ngIf="listHasBranch" [ngStyle]="{'border-bottom': isNextBranchSame(i, 0) ? '1px solid transparent' : '1px solid #ddd' }">
+                            <span *ngIf="i === 0 || detail.BranchName !== invoiceDetails[i - 1].BranchName || detail.ProjNo !== invoiceDetails[i - 1].ProjNo">{{ detail.BranchName }}</span>
                         </td>
                         <td [ngStyle]="{'border-bottom': isNextDocNoSame(i) ? '1px solid transparent' : '1px solid #ddd' }">
                             <span *ngIf="i === 0 || detail.DocNo !== invoiceDetails[i - 1].DocNo">{{ detail.DocNo }}</span>
@@ -93,23 +104,37 @@
                     </tr>
 
                     <!-- Show total row when the last entry for that Doc is reached -->
-                    <tr *ngIf="(i === invoiceDetails.length - 1 || detail.DocNo !== invoiceDetails[i + 1].DocNo) && docLength[detail.DocNo] > 1"
+                    <tr *ngIf="(i === invoiceDetails.length - 1 || detail.DocNo !== invoiceDetails[i + 1].DocNo) && docLength[`${detail.DocNo}-${detail.ProjNo}`] > 1 && !showSummaryOnly"
                         class="doc-total">
-                        <td [ngStyle]="{'border-bottom': isNextProjNoSame(i, true, false) ? '1px solid transparent' : '1px solid #ddd' }"></td>
-                        <td [ngStyle]="{'border-bottom': isNextDebtorSame(i, true, false) ? '1px solid transparent' : '1px solid #ddd' }"></td>
+                        <td [ngStyle]="{'border-bottom': isNextProjNoSame(i, 1) ? '1px solid transparent' : '1px solid #ddd' }"></td>
+                        <td [ngStyle]="{'border-bottom': isNextDebtorSame(i, 1) ? '1px solid transparent' : '1px solid #ddd' }"></td>
+                        <td *ngIf="listHasBranch" [ngStyle]="{'border-bottom': isNextBranchSame(i, 1) ? '1px solid transparent' : '1px solid #ddd' }"></td>
                         <td colspan="3" class="text-right"><strong>{{ detail.DocNo }} Total</strong></td>
-                        <td class="text-end-align"><strong>{{ docQtyTotals[detail.DocNo] }}</strong></td>
-                        <td class="text-end-align"><strong>{{ docSubTotals[detail.DocNo].toFixed(2) }}</strong></td>
+                        <td class="text-end-align"><strong>{{ docQtyTotals[`${detail.DocNo}-${detail.ProjNo}`] }}</strong></td>
+                        <td class="text-end-align"><strong>{{ docSubTotals[`${detail.DocNo}-${detail.ProjNo}`].toFixed(2) }}</strong></td>
                         <td class="text-end-align" *ngIf="detail.ProjNo == 'LB'"><strong>{{
-                                docLitreTotals[detail.DocNo]
+                                docLitreTotals[`${detail.DocNo}-${detail.ProjNo}`]
                                 }}</strong></td>
                         <td *ngIf="detail.ProjNo != 'LB'"></td>
                     </tr>
 
+                    <!-- Show total row when the last entry for that Branch is reached -->
+                    <tr *ngIf="listHasBranch && ((i === invoiceDetails.length - 1 || detail.BranchName !== invoiceDetails[i + 1].BranchName) && branchLength[`${detail.BranchName}-${detail.ProjNo}`] > 1) && !showSummaryOnly"
+                        class="branch-total">
+                        <td [ngStyle]="{'border-bottom': isNextProjNoSame(i, 2) ? '1px solid transparent' : '1px solid #ddd' }"></td>
+                        <td [ngStyle]="{'border-bottom': isNextDebtorSame(i, 2) ? '1px solid transparent' : '1px solid #ddd' }"></td>
+                        <td colspan="4"><strong>{{ detail.BranchName }} Total</strong></td>
+                        <td class="text-end-align"><strong>{{ branchTotals[detail.BranchName + '-' + detail.ProjNo].Qty || 0 }}</strong></td>
+                        <td class="text-end-align"><strong>{{ branchTotals[detail.BranchName + '-' + detail.ProjNo].SubTotal.toFixed(2) ||'0.00' }}</strong></td>
+                        <td class="text-end-align" *ngIf="detail.ProjNo === 'LB'"><strong>{{ branchTotals[detail.BranchName + '-' + detail.ProjNo].Litres || 0 }}</strong></td>
+                        <td *ngIf="detail.ProjNo !== 'LB'"></td>
+                    </tr>
+
                     <!-- Show total row when the last entry for that Debtor is reached -->
-                    <tr *ngIf="(i === invoiceDetails.length - 1 || detail.DebtorName !== invoiceDetails[i + 1].DebtorName || detail.ProjNo !== invoiceDetails[i + 1].ProjNo) && debtorLength[detail.DebtorName + '-' + detail.ProjNo] > 1" class="debtor-total">
-                        <td [ngStyle]="{'border-bottom': isNextProjNoSame(i, false, true) ? '1px solid transparent' : '1px solid #ddd' }"></td>
-                        <td colspan="4" class="text-right"><strong>{{ detail.DebtorName }} Total</strong></td>
+                    <tr *ngIf="(i === invoiceDetails.length - 1 || detail.DebtorName !== invoiceDetails[i + 1].DebtorName || detail.ProjNo !== invoiceDetails[i + 1].ProjNo) && debtorLength[detail.DebtorName + '-' + detail.ProjNo] > 1 && !showSummaryOnly" class="debtor-total">
+                        <td [ngStyle]="{'border-bottom': isNextProjNoSame(i, 3) ? '1px solid transparent' : '1px solid #ddd' }"></td>
+                        <td *ngIf="listHasBranch" colspan="5" class="text-right"><strong>{{ detail.DebtorName }} Total</strong></td>
+                        <td *ngIf="!listHasBranch" colspan="4" class="text-right"><strong>{{ detail.DebtorName }} Total</strong></td>
                         <td class="text-end-align"><strong>{{ debtorTotals[detail.DebtorName + '-' + detail.ProjNo].Qty || 0 }}</strong></td>
                         <td class="text-end-align"><strong>{{ debtorTotals[detail.DebtorName + '-' + detail.ProjNo].SubTotal.toFixed(2) ||'0.00' }}</strong></td>
                         <td class="text-end-align" *ngIf="detail.ProjNo === 'LB'"><strong>{{ debtorTotals[detail.DebtorName + '-' + detail.ProjNo].Litres || 0 }}</strong></td>
@@ -119,7 +144,8 @@
                     <!-- Show total row when the last entry for that ProjNo is reached -->
                     <tr *ngIf="(i === invoiceDetails.length - 1 || detail.ProjNo !== invoiceDetails[i + 1].ProjNo)  && shipInfoLength[detail.ProjNo] > 1"
                         class="shipinfo-total">
-                        <td colspan="5" class="text-right"><strong>{{ detail.ProjNo }} Total</strong></td>
+                        <td *ngIf="listHasBranch" colspan="6" class="text-right"><strong>{{ detail.ProjNo }} Total</strong></td>
+                        <td *ngIf="!listHasBranch" colspan="5" class="text-right"><strong>{{ detail.ProjNo }} Total</strong></td>
                         <td class="text-end-align"><strong>{{ shipInfoQtyTotals[detail.ProjNo] }}</strong></td>
                         <td class="text-end-align"><strong>{{ shipInfoTotals[detail.ProjNo].toFixed(2) }}</strong>
                         </td>
@@ -131,7 +157,8 @@
             </tbody>
             <tfoot *ngIf="invoiceDetails.length > 0">
                 <tr class="grand-total">
-                    <td colspan="5" class="text-right"><strong>Grand Total</strong></td>
+                    <td *ngIf="listHasBranch" colspan="6" class="text-right"><strong>Grand Total</strong></td>
+                    <td *ngIf="!listHasBranch" colspan="5" class="text-right"><strong>Grand Total</strong></td>
                     <td class="text-end-align"><strong>{{ grandQtyTotal }}</strong></td>
                     <td class="text-end-align"><strong>{{ grandSubTotal.toFixed(2) }}</strong></td>
                     <td></td>

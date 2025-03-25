@@ -1,18 +1,15 @@
 require('dotenv').config();
-const path = require("path");
 const express = require('express');
 const sql = require('mssql');
 const cors = require('cors');
+const { Pool } = require('pg');
 
 const app = express();
-const port = process.env.PORT || 3000;
-// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const port = process.env.PORT || 4000;
 
 // Enable CORS for Angular frontend
 app.use(cors());
 app.use(express.json());
-
-// app.use(express.static(path.join(__dirname, "public"))); // Serve static files
 
 // Database Configuration
 const kaiShenConfig = {
@@ -41,6 +38,14 @@ const lensoConfig = {
     }
 };
 
+const loginPool = new Pool({
+    host: "192.168.0.254",
+    port: 5432,
+    user: "postgres",
+    password: "Director1",
+    database: "postgres",
+});
+
 // Create connection pools for both databases
 const kaiShenPool = new sql.ConnectionPool(kaiShenConfig).connect();
 const lensoPool = new sql.ConnectionPool(lensoConfig).connect();
@@ -67,6 +72,12 @@ async function testDBConnection2() {
     } catch (err) {
         console.error("❌ Lenso Database connection failed:", err.message);
     }
+}
+// Test Database Connection
+async function testDBConnection3() {
+    loginPool.connect()
+        .then(() => console.log('✅ Connected to PostgreSQL successfully!'))
+        .catch(err => console.error('❌ Error connecting to PostgreSQL:', err));
 }
 
 // API to fetch unique SalesAgents for dropdown
@@ -275,9 +286,61 @@ app.get('/api/get-branch-details', async (req, res) => {
     }
 });
 
+// Get sales login by username and password
+app.get("/sales-login", async (req, res) => {
+    const username = req.query.username;
+    const password = req.query.password;
+
+    if (!username || !password) {
+        return res.status(400).json({ error: "Username and password are required" });
+    }
+
+    try {
+        const result = await loginPool.query(
+            "SELECT username, password FROM sales_report_login WHERE username = $1 AND password = $2",
+            [username, password]
+        );
+
+        if (result.rows.length > 0) {
+            res.json(result.rows[0]);
+        } else {
+            res.status(404).json({ error: "User not found" });
+        }
+    } catch (err) {
+        console.error("Error fetching sales login:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+app.post('/change-password', async (req, res) => {
+    const { username, newPassword } = req.body;
+
+    if (!username || !newPassword) {
+        return res.status(400).json({ success: false, message: "Missing username or new password" });
+    }
+
+    try {
+        const result = await loginPool.query(
+            "UPDATE sales_report_login SET password = $1 WHERE username = $2 RETURNING *",
+            [newPassword, username]
+        );
+
+        if (result.rowCount > 0) {
+            res.json({ success: true, message: "Password updated successfully" });
+        } else {
+            res.status(404).json({ success: false, message: "User not found" });
+        }
+
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
 // Start Server
 app.listen(port, async () => {
     console.log(`🚀 Server running at http://localhost:${port}`);
     await testDBConnection();
     await testDBConnection2();
+    await testDBConnection3();
 });

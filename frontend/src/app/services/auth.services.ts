@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { InvoiceService } from '../services/invoice.service';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -7,49 +9,24 @@ export class AuthService {
   private loggedInUser: string | null = null;
   private loggedInUserKey = 'loggedInUser';
 
-  login(username: string, password: string): boolean {
-    // ✅ Use Record<string, string> to allow dynamic keys
-    const validUsers: Record<string, string> = {
-      CHK: "chk123",
-      CHL: "chl123",
-      GKS: 'gks123',
-      HSL: "hsl123",
-      HYH: "hyh123",
-      KCH: "kch123",
-      KCL: "kcl123",
-      KCY: "kcy123",
-      KKS: "kks123",
-      LCN: "lcn123",
-      LHS: "lhs123",
-      LKF: "lkf123",
-      LKY: "lky123",
-      LSK: "lsk123",
-      LSS: "lss123",
-      LSY: "lsy123",
-      LVC: "lvc123",
-      LWS: "lws123",
-      SCJ: "scj123",
-      SKW: "skw123",
-      TCH: "tch123",
-      TFS: "tfs123",
-      TKG: "tkg123",
-      TKK: "tkk123",
-      UCK: "uck123",
-      WKH: "wkh123",
-      YAPKL: "yapkl123",
-      YCL: "ycl123",
-      YCT: "yct123",
-      YYC: 'yyc123',
-    };
+  constructor(private invoiceService: InvoiceService) { }
 
-    const normalizedUsername = username.toUpperCase(); // Convert to uppercase
+  async login(username: string, password: string): Promise<boolean> {
+    try {
+      const loginCredentials = await lastValueFrom(
+        this.invoiceService.getLoginDetails(username.toUpperCase(), password)
+      );
 
-    if (validUsers[normalizedUsername] && validUsers[normalizedUsername] === password) {
-      this.loggedInUser = normalizedUsername;
-      localStorage.setItem('loggedInUser', normalizedUsername); // ✅ Store in localStorage
-      return true;
+      if (loginCredentials && Object.keys(loginCredentials).length > 0) {
+        this.loggedInUser = username.toUpperCase();
+        localStorage.setItem('loggedInUser', username.toUpperCase()); // Store in localStorage
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      return false;
     }
-    return false;
   }
 
   logout(): void {
@@ -63,5 +40,15 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!this.getLoggedInUser(); // ✅ Check if user is logged in
+  }
+
+  async changePassword(username: string, newPassword: string): Promise<boolean> {
+    try {
+      const response = await lastValueFrom(this.invoiceService.changePassword(username.toUpperCase(), newPassword));
+      return response?.success ?? false;
+    } catch (error) {
+      console.error("Error changing password:", error);
+      return false;
+    }
   }
 }

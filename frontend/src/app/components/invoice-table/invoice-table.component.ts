@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InvoiceService } from '../../services/invoice.service';
 import { AuthService } from '../../services/auth.services';
@@ -22,6 +22,9 @@ import { Router } from '@angular/router';
 import autoTable, { ThemeType } from 'jspdf-autotable';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ChangePasswordDialogComponent } from '../change-password-dialog/change-password-dialog.component';
 
 const moment = _rollupMoment || _moment;
 
@@ -54,6 +57,8 @@ export class InvoiceTableComponent implements OnInit {
   startDate: Date = moment().startOf('isoWeek').toDate();
   endDate: Date = moment().endOf('isoWeek').toDate();
   filterReportForm!: FormGroup;
+  readonly dialog = inject(MatDialog);
+  private _snackBar = inject(MatSnackBar);
 
   selectedDocKey: number | null = null;
   invoices: any[] = [];
@@ -124,6 +129,11 @@ export class InvoiceTableComponent implements OnInit {
 
   grandSubTotal: number = 0;
   grandQtyTotal: number = 0;
+
+  newPassword = '';
+  errorMessage = '';
+  changePasswordMessage = '';
+  showChangePassword = false;
 
   constructor(
     private invoiceService: InvoiceService,
@@ -556,8 +566,6 @@ export class InvoiceTableComponent implements OnInit {
           rowData.push(td.innerText)
         });
 
-        console.log(rowData)
-
         if (rowData.length == 4) { //shipinfo total
           rowData.splice(1, 0, "", "", "", "", "");
           rowData = [
@@ -869,5 +877,35 @@ export class InvoiceTableComponent implements OnInit {
       }
     }
     return false;
+  }
+
+  openChangePasswordDialog() {
+    const dialogRef = this.dialog.open(ChangePasswordDialogComponent, {
+      width: '500px',
+      data: { username: this.salesAgent }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this._snackBar.open("✅ Password updated successfully!");
+      }
+      else {
+        this._snackBar.open("❌ Failed to update password. Please try again later.");
+      }
+    });
+  }
+
+  async changePassword() {
+    if (this.newPassword.length < 6) {
+      this.changePasswordMessage = 'Password must be at least 6 characters';
+      return;
+    }
+
+    const success = await this.authService.changePassword(this.salesAgent, this.newPassword);
+
+    this.changePasswordMessage = success ? 'Password updated successfully' : 'Failed to update password';
+    if (success) {
+      this.newPassword = ''; // Clear input field
+    }
   }
 }

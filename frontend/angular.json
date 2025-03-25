@@ -62,6 +62,7 @@
         "serve": {
           "options": {
             "host": "0.0.0.0",
+            "port": 4200,
             "allowedHosts": ["192.168.0.254", "localhost"]
           },
           "builder": "@angular-devkit/build-angular:dev-server",

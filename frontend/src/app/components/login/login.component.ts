@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.services';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -16,13 +16,11 @@ export class LoginComponent {
   password = '';
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {
-    console.log('Login button clicked');
-  }
+  constructor(private authService: AuthService, private router: Router) { }
 
-  login() {
-    if (this.authService.login(this.username, this.password)) {
-      this.router.navigate(['/invoices']); // ✅ Redirect to invoices
+  async login() {
+    if (await this.authService.login(this.username, this.password)) {
+      this.router.navigate(['/invoices']);
     } else {
       this.errorMessage = 'Invalid credentials';
     }

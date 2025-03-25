@@ -1,12 +1,83 @@
+@media only screen and (min-width: 601px) {
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.72vw;
+    }
+
+    .preheader-container {
+        padding: 8px;
+        margin: 0;
+        display: flex;
+        gap: 32px;
+    }
+
+    .filter-container {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        column-gap: 20px;
+    }
+}
+
+
+@media only screen and (max-width: 600px) {
+    .invoice-container {
+        width: 100vw;
+        overflow-x: scroll;
+    }
+
+    table {
+        width: 1000px;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .preheader-container {
+        padding: 8px;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 28px;
+    }
+
+    .filter-container {
+        display: grid;
+        justify-content: start;
+        align-items: center;
+        column-gap: 20px;
+        width: 100%;
+
+        mat-form-field {
+            width: 90vw;
+        }
+    }
+}
+
+.header {
+    h2 {
+        margin: 0;
+    }
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 body {
     padding: 8px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 0.72vw;
+.carton-span {
+    font-size: 12px;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 20px;
+    padding: 8px;
 }
 
 th,
@@ -34,34 +105,4 @@ th {
 
 .text-end-align {
     text-align: end;
-}
-
-.preheader-container {
-    padding: 8px;
-    margin: 0;
-    display: flex;
-    gap: 32px;
-}
-
-.header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    column-gap: 20px;
-    padding: 8px;
-}
-
-.filter-container {
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    column-gap: 20px;
-}
-
-.carton-span {
-    font-size: 12px;
-}
-
-.mdc-label {
-    padding-left: 0 !important;
 }

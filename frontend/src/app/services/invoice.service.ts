@@ -6,8 +6,9 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class InvoiceService {
-  // private domain = "http://localhost:3000";
-  private domain = "http://192.168.0.254:3000";
+  private domain = "http://localhost:4000";
+  // private domain = "http://192.168.0.254:4000";
+  // private domain = "https://glm84bs6-4000.asse.devtunnels.ms";
 
   private agentUrl = `${this.domain}/api/sales-agents`;
   private apiUrl = `${this.domain}/api/invoices`;
@@ -17,6 +18,8 @@ export class InvoiceService {
   private creditNoteDetailsUrl = `${this.domain}/api/credit-notes-details`;
   private filteredCNUrl = `${this.domain}/filtered-credit-notes`;
   private getBranchUrl = `${this.domain}/api/get-branch-details`;
+  private getLoginUrl = `${this.domain}/sales-login`;
+  private changePasswordUrl = `${this.domain}/change-password`;
 
   constructor(private http: HttpClient) { }
 
@@ -74,5 +77,17 @@ export class InvoiceService {
     const dbParam = isLensoDB ? 'lenso' : 'kai_shen';
     const url = branchCode ? `${this.getBranchUrl}?branchCode=${branchCode}&db=${dbParam}` : this.getBranchUrl;
     return this.http.get<any[]>(url);
+  }
+
+  getLoginDetails(username: string, password: string) {
+    const url = (username && password) ? `${this.getLoginUrl}?username=${username}&password=${password}` : this.getLoginUrl;
+    return this.http.get<any[]>(url);
+  }
+
+  changePassword(username: string, newPassword: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(this.changePasswordUrl, {
+      username,
+      newPassword,
+    });
   }
 }

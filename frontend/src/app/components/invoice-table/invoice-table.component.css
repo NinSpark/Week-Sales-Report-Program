@@ -2,7 +2,7 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.72vw;
+        font-size: 14px;
     }
 
     .preheader-container {
@@ -30,7 +30,7 @@
     table {
         width: 1000px;
         border-collapse: collapse;
-        font-size: 14px;
+        font-size: 16px;
     }
 
     .preheader-container {

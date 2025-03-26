@@ -90,21 +90,25 @@ export class InvoiceTableComponent implements OnInit {
   shipInfoTotals: { [key: string]: number } = {};
   shipInfoQtyTotals: { [key: string]: number } = {};
   shipInfoLitreTotals: { [key: string]: number } = {};
+  shipInfoCtnTotals: { [key: string]: number } = {};
   shipInfoLength: { [key: string]: number } = {};
 
   debtorSubTotals: { [key: string]: number } = {};
   debtorQtyTotals: { [key: string]: number } = {};
   debtorLitreTotals: { [key: string]: number } = {};
+  debtorCtnTotals: { [key: string]: number } = {};
   debtorLength: { [key: string]: number } = {};
 
   branchSubTotals: { [key: string]: number } = {};
   branchQtyTotals: { [key: string]: number } = {};
   branchLitreTotals: { [key: string]: number } = {};
+  branchCtnTotals: { [key: string]: number } = {};
   branchLength: { [key: string]: number } = {};
 
   docSubTotals: { [key: string]: number } = {};
   docQtyTotals: { [key: string]: number } = {};
   docLitreTotals: { [key: string]: number } = {};
+  docCtnTotals: { [key: string]: number } = {};
   docLength: { [key: string]: number } = {};
 
   debtorTotals: {
@@ -114,6 +118,7 @@ export class InvoiceTableComponent implements OnInit {
       SubTotal: number;
       Qty: number;
       Litres: number;
+      Ctn: number;
     }
   } = {};
 
@@ -124,6 +129,7 @@ export class InvoiceTableComponent implements OnInit {
       SubTotal: number;
       Qty: number;
       Litres: number;
+      Ctn: number;
     }
   } = {};
 
@@ -195,6 +201,10 @@ export class InvoiceTableComponent implements OnInit {
               let match;
               while ((match = regex.exec(invoice.Description)) !== null) {
                 invoice.Ctn = invoice.Qty / parseInt(match[1]);
+
+                if (invoice.Ctn < 1) {
+                  invoice.Ctn = 0;
+                }
               }
             }
           });
@@ -224,7 +234,7 @@ export class InvoiceTableComponent implements OnInit {
             branchName = branchDetail[0].BranchName;
           }
 
-          const tmp = {
+          let tmp = {
             DebtorName: creditNote.DebtorName,
             BranchCode: creditNote.branchCode,
             BranchName: branchName ?? "",
@@ -247,6 +257,10 @@ export class InvoiceTableComponent implements OnInit {
             let match;
             while ((match = regex.exec(tmp.Description)) !== null) {
               tmp.Ctn = tmp.Qty / parseInt(match[1]);
+
+              if (tmp.Ctn < 1) {
+                tmp.Ctn = 0;
+              }
             }
           }
 
@@ -286,6 +300,7 @@ export class InvoiceTableComponent implements OnInit {
     this.shipInfoTotals = {};
     this.shipInfoQtyTotals = {};
     this.shipInfoLitreTotals = {};
+    this.shipInfoCtnTotals = {};
     this.shipInfoLength = {};
 
     this.invoiceDetails.forEach(detail => {
@@ -294,11 +309,13 @@ export class InvoiceTableComponent implements OnInit {
         this.shipInfoTotals[detail.ShipInfo] = 0;
         this.shipInfoQtyTotals[detail.ShipInfo] = 0;
         this.shipInfoLitreTotals[detail.ShipInfo] = 0;
+        this.shipInfoCtnTotals[detail.ShipInfo] = 0;
       }
       this.shipInfoLength[detail.ShipInfo]++;
       this.shipInfoTotals[detail.ShipInfo] += detail.SubTotal;
       this.shipInfoQtyTotals[detail.ShipInfo] += detail.Qty;
       this.shipInfoLitreTotals[detail.ShipInfo] += detail.SmallestQty;
+      this.shipInfoCtnTotals[detail.ShipInfo] += detail.Ctn;
     });
   }
 
@@ -306,6 +323,7 @@ export class InvoiceTableComponent implements OnInit {
     this.docSubTotals = {};
     this.docQtyTotals = {};
     this.docLitreTotals = {};
+    this.docCtnTotals = {};
     this.docLength = {};
 
     this.invoiceDetails.forEach(detail => {
@@ -314,10 +332,12 @@ export class InvoiceTableComponent implements OnInit {
         this.docSubTotals[`${detail.DocNo}-${detail.ProjNo}`] = 0;
         this.docQtyTotals[`${detail.DocNo}-${detail.ProjNo}`] = 0;
         this.docLitreTotals[`${detail.DocNo}-${detail.ProjNo}`] = 0;
+        this.docCtnTotals[`${detail.DocNo}-${detail.ProjNo}`] = 0;
       }
       this.docLength[`${detail.DocNo}-${detail.ProjNo}`]++;
       this.docSubTotals[`${detail.DocNo}-${detail.ProjNo}`] += detail.SubTotal;
       this.docLitreTotals[`${detail.DocNo}-${detail.ProjNo}`] += detail.SmallestQty;
+      this.docCtnTotals[`${detail.DocNo}-${detail.ProjNo}`] += detail.Ctn;
       this.docQtyTotals[`${detail.DocNo}-${detail.ProjNo}`] += detail.Qty;
     });
   }
@@ -339,12 +359,14 @@ export class InvoiceTableComponent implements OnInit {
             SubTotal: 0,
             Qty: 0,
             Litres: 0,
+            Ctn: 0
           };
         }
 
         this.branchLength[branchKey]++;
         this.branchTotals[branchKey].SubTotal += invoice.SubTotal;
         this.branchTotals[branchKey].Qty += invoice.Qty;
+        this.branchTotals[branchKey].Ctn += invoice.Ctn;
 
         // Only add Litres if ShipInfo is 'LB'
         if (invoice.ShipInfo === 'LB') {
@@ -370,12 +392,14 @@ export class InvoiceTableComponent implements OnInit {
           SubTotal: 0,
           Qty: 0,
           Litres: 0,
+          Ctn: 0,
         };
       }
 
       this.debtorLength[debtorKey]++;
       this.debtorTotals[debtorKey].SubTotal += invoice.SubTotal;
       this.debtorTotals[debtorKey].Qty += invoice.Qty;
+      this.debtorTotals[debtorKey].Ctn += invoice.Ctn;
 
       // Only add Litres if ShipInfo is 'LB'
       if (invoice.ShipInfo === 'LB') {
@@ -469,6 +493,10 @@ export class InvoiceTableComponent implements OnInit {
               let match;
               while ((match = regex.exec(invoice.Description)) !== null) {
                 invoice.Ctn = invoice.Qty / parseInt(match[1]);
+
+                if (invoice.Ctn < 1) {
+                  invoice.Ctn = 0;
+                }
               }
             }
           })
@@ -491,7 +519,7 @@ export class InvoiceTableComponent implements OnInit {
               branchName = branchDetail[0]?.BranchName ?? "";
             }
 
-            const tmp = {
+            let tmp = {
               DebtorName: creditNote.DebtorName,
               BranchName: branchName,
               Description: creditNote.Description,
@@ -513,6 +541,10 @@ export class InvoiceTableComponent implements OnInit {
               let match;
               while ((match = regex.exec(tmp.Description)) !== null) {
                 tmp.Ctn = tmp.Qty / parseInt(match[1]);
+
+                if (tmp.Ctn < 1) {
+                  tmp.Ctn = 0;
+                }
               }
             }
 

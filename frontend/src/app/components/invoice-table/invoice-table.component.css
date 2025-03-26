@@ -30,7 +30,7 @@
     table {
         width: 1000px;
         border-collapse: collapse;
-        font-size: 16px;
+        font-size: 14px;
     }
 
     .preheader-container {
@@ -60,8 +60,9 @@
     }
 
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
     align-items: center;
+    column-gap: 4px;
 }
 
 body {

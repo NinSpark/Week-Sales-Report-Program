@@ -2,10 +2,19 @@
     <div class="header">
         <h2>Sales Report for {{ salesAgent }}</h2>
         <div class="options-container">
-            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+            <button mat-icon-button [matMenuTriggerFor]="menu" [disabled]="isLoading">
                 <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
+                <div class="mat-menu-item" style="padding: 12px; border-bottom: 1px solid #ccc;">
+                    <mat-slide-toggle [(ngModel)]="isLensoDB" (change)="toggleDB()">
+                        <span style="font-weight: 500; padding-left: 4px;">Lenso Report</span>
+                    </mat-slide-toggle>
+                </div>
+                <button mat-menu-item class="change-password-button" (click)="openChangePasswordDialog()">
+                    <mat-icon>edit</mat-icon>
+                    <span>Change Password</span>
+                </button>
                 <button mat-menu-item class="export-pdf-button" (click)="exportToPDF()"
                     [disabled]="this.invoiceDetails.length == 0 || this.isLoading">
                     <mat-icon>upload_file</mat-icon>
@@ -15,10 +24,6 @@
                     [disabled]="this.invoiceDetails.length == 0 || this.isLoading">
                     <mat-icon>upload_file</mat-icon>
                     <span>Export Excel</span>
-                </button>
-                <button mat-menu-item class="change-password-button" (click)="openChangePasswordDialog()">
-                    <mat-icon>edit</mat-icon>
-                    <span>Change Password</span>
                 </button>
                 <button mat-menu-item class="logout-button" (click)="logout()">
                     <mat-icon>logout</mat-icon>
@@ -59,7 +64,7 @@
     </div>
 
     <div class="preheader-container">
-        <mat-checkbox [(ngModel)]="isLensoDB" (change)="toggleDB()" [disabled]="isLoading">Lenso Report</mat-checkbox>
+        <!-- <mat-checkbox [(ngModel)]="isLensoDB" (change)="toggleDB()" [disabled]="isLoading">Lenso Report</mat-checkbox> -->
         <mat-checkbox *ngIf="!isLensoDB" [(ngModel)]="showCarton" [disabled]="isLoading">Show Carton</mat-checkbox>
         <mat-checkbox [(ngModel)]="showSummaryOnly" [disabled]="isLoading">Show Summary Only</mat-checkbox>
     </div>

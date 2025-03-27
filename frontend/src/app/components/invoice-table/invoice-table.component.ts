@@ -179,7 +179,7 @@ export class InvoiceTableComponent implements OnInit {
             this.listHasBranch = true;
 
             const branchDetail = await lastValueFrom(
-              this.invoiceService.getBranchDetails(invoice.BranchCode, this.isLensoDB)
+              this.invoiceService.getBranchDetails(invoice.BranchCode, invoice.DeliverAddr1, this.isLensoDB)
             );
 
             branchName = branchDetail[0].BranchName;
@@ -228,7 +228,7 @@ export class InvoiceTableComponent implements OnInit {
             this.listHasBranch = true;
 
             const branchDetail = await lastValueFrom(
-              this.invoiceService.getBranchDetails(creditNote.BranchCode, this.isLensoDB)
+              this.invoiceService.getBranchDetails(creditNote.BranchCode, creditNote.DeliverAddr1, this.isLensoDB)
             );
 
             branchName = branchDetail[0].BranchName;
@@ -476,9 +476,8 @@ export class InvoiceTableComponent implements OnInit {
           this.invoiceDetails.map(async (invoice) => {
             if (invoice.BranchCode) {
               this.listHasBranch = true;
-
               const branchDetail = await lastValueFrom(
-                this.invoiceService.getBranchDetails(invoice.BranchCode, this.isLensoDB)
+                this.invoiceService.getBranchDetails(invoice.BranchCode, invoice.DeliverAddr1, this.isLensoDB)
               );
 
               invoice.BranchName = branchDetail[0]?.BranchName ?? "";
@@ -514,7 +513,7 @@ export class InvoiceTableComponent implements OnInit {
             if (creditNote.BranchCode) {
               this.listHasBranch = true;
               const branchDetail = await lastValueFrom(
-                this.invoiceService.getBranchDetails(creditNote.BranchCode, this.isLensoDB)
+                this.invoiceService.getBranchDetails(creditNote.BranchCode, creditNote.DeliverAddr1, this.isLensoDB)
               );
               branchName = branchDetail[0]?.BranchName ?? "";
             }
@@ -811,9 +810,16 @@ export class InvoiceTableComponent implements OnInit {
           if (this.invoiceDetails[index].DocNo == this.invoiceDetails[index - 1].DocNo) {
             return true;
           }
+          if (this.invoiceDetails[index].DocNo != this.invoiceDetails[index - 1].DocNo) {
+            if (this.invoiceDetails[index].DebtorName != this.invoiceDetails[index - 1].DebtorName) {
+              return true;
+            }
+          }
 
-          if (this.invoiceDetails[index].BranchName == this.invoiceDetails[index - 1].BranchName) {
-            return true;
+          if (this.invoiceDetails[index].BranchName != "") {
+            if (this.invoiceDetails[index].BranchName == this.invoiceDetails[index - 1].BranchName) {
+              return true;
+            }
           }
         }
       }

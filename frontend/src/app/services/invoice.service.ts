@@ -75,12 +75,12 @@ export class InvoiceService {
 
   getBranchDetails(branchCode: string, DeliverAddr1: string, isLensoDB: boolean) {
     const dbParam = isLensoDB ? 'lenso' : 'kai_shen';
-    const url = branchCode ? `${this.getBranchUrl}?branchCode=${branchCode}&deliverAddr1=${DeliverAddr1}&db=${dbParam}` : this.getBranchUrl;
+    const url = branchCode ? `${this.getBranchUrl}?branchCode=${encodeURIComponent(branchCode)}&deliverAddr1=${encodeURIComponent(DeliverAddr1)}&db=${dbParam}` : this.getBranchUrl;
     return this.http.get<any[]>(url);
   }
 
   getLoginDetails(username: string, password: string) {
-    const url = (username && password) ? `${this.getLoginUrl}?username=${username}&password=${password}` : this.getLoginUrl;
+    const url = (username && password) ? `${this.getLoginUrl}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}` : this.getLoginUrl;
     return this.http.get<any[]>(url);
   }
 

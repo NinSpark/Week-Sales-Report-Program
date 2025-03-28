@@ -106,7 +106,8 @@ app.get('/api/invoices', async (req, res) => {
 
         const query = `SELECT DocKey, DocNo, DocDate, SalesAgent, BranchCode, NetTotal, DebtorName, ShipInfo, DeliverAddr1
                    FROM dbo.IV WHERE SalesAgent = @salesAgent 
-                   AND DocDate >= DATEADD(WEEK, DATEDIFF(WEEK, 0, GETDATE()), 0)`;
+                   AND DocDate >= DATEADD(WEEK, DATEDIFF(WEEK, 0, GETDATE()), 0)
+                   AND Cancelled = 'F'`;
 
         const result = await request.query(query);
         res.json(result.recordset);
@@ -153,11 +154,12 @@ app.get("/filtered-invoices", async (req, res) => {
 
         let query = `
             SELECT i.DocKey, i.DocNo, i.DebtorName, i.ShipInfo, i.DocDate, i.BranchCode, i.DeliverAddr1,
-                   d.Description, d.Qty, d.SubTotal, d.SmallestQty, d.ProjNo
+                   d.Description, d.Qty, d.SubTotal, d.SmallestQty, d.ProjNo, d.ItemCode
             FROM IV i
             JOIN IVDTL d ON i.DocKey = d.DocKey
             WHERE i.SalesAgent = @salesAgent
-              AND i.DocDate BETWEEN @startDate AND @endDate
+            AND i.DocDate BETWEEN @startDate AND @endDate
+            AND i.Cancelled = 'F'
             AND ItemCode NOT LIKE 'Z%'`;
 
         if (dbType == 'kai_shen' && shipInfoList.length > 0) {
@@ -193,6 +195,7 @@ app.get('/api/credit-notes', async (req, res) => {
                        WHERE SalesAgent = @salesAgent
                        AND DocStatus = 'A'
                        AND CNType = 'RETURN' 
+                       AND Cancelled = 'F'
                        AND DocDate >= DATEADD(WEEK, DATEDIFF(WEEK, 0, GETDATE()), 0)`;
 
         const pool = await getDBPool(dbType);
@@ -246,7 +249,8 @@ app.get("/filtered-credit-notes", async (req, res) => {
             WHERE i.SalesAgent = @salesAgent
             AND i.DocStatus = 'A'
             AND i.CNType = 'RETURN'
-              AND i.DocDate BETWEEN @startDate AND @endDate`;
+            AND i.Cancelled = 'F'
+            AND i.DocDate BETWEEN @startDate AND @endDate`;
 
         if (dbType == 'kai_shen' && refList.length > 0) {
             query += ` AND i.Ref IN (${refList.map((_, i) => `@ship${i}`).join(",")})`;

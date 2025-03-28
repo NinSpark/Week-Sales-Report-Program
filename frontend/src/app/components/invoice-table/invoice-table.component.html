@@ -117,10 +117,9 @@
                         </td>
                         <td
                             [ngStyle]="{'border-bottom': isNextDocNoSame(i) ? '1px solid transparent' : '1px solid #ddd' }">
-                            <span *ngIf="i === 0 || detail.DocNo !== invoiceDetails[i - 1].DocNo">{{ detail.DocNo
-                                }}</span>
+                            <span *ngIf="i === 0 || detail.DocNo !== invoiceDetails[i - 1].DocNo">{{ detail.DocNo }}</span>
                         </td>
-                        <td>{{ detail.Description }}</td>
+                        <td>{{ detail.Description }} <strong *ngIf="containsLAI(detail.ItemCode)">[LAI]</strong></td>
                         <td>{{ detail.DocDate | date:'dd/MM/yyyy' }}</td>
                         <td class="text-end-align"> <span class="carton-span"
                                 *ngIf="detail.ProjNo[0] == 'L' && showCarton"> ({{detail.Ctn}} ctn) </span>{{ detail.Qty

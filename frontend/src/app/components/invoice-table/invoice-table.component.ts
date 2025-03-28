@@ -182,7 +182,7 @@ export class InvoiceTableComponent implements OnInit {
               this.invoiceService.getBranchDetails(invoice.BranchCode, invoice.DeliverAddr1, this.isLensoDB)
             );
 
-            branchName = branchDetail[0].BranchName;
+            branchName = branchDetail[0].BranchName ?? "";
           }
           const enrichedDetails = details.map(detail => ({
             ...detail,
@@ -231,7 +231,7 @@ export class InvoiceTableComponent implements OnInit {
               this.invoiceService.getBranchDetails(creditNote.BranchCode, creditNote.DeliverAddr1, this.isLensoDB)
             );
 
-            branchName = branchDetail[0].BranchName;
+            branchName = branchDetail[0].BranchName ?? "";
           }
 
           let tmp = {
@@ -480,7 +480,7 @@ export class InvoiceTableComponent implements OnInit {
                 this.invoiceService.getBranchDetails(invoice.BranchCode, invoice.DeliverAddr1, this.isLensoDB)
               );
 
-              invoice.BranchName = branchDetail[0]?.BranchName ?? "";
+              invoice.BranchName = branchDetail[0].BranchName ?? "";
             }
 
             if (!invoice.ProjNo) {
@@ -515,7 +515,7 @@ export class InvoiceTableComponent implements OnInit {
               const branchDetail = await lastValueFrom(
                 this.invoiceService.getBranchDetails(creditNote.BranchCode, creditNote.DeliverAddr1, this.isLensoDB)
               );
-              branchName = branchDetail[0]?.BranchName ?? "";
+              branchName = branchDetail[0].BranchName ?? "";
             }
 
             let tmp = {
@@ -811,7 +811,7 @@ export class InvoiceTableComponent implements OnInit {
             return true;
           }
           if (this.invoiceDetails[index].DocNo != this.invoiceDetails[index - 1].DocNo) {
-            if (this.invoiceDetails[index].DebtorName != this.invoiceDetails[index - 1].DebtorName) {
+            if (this.invoiceDetails[index].DebtorName == this.invoiceDetails[index - 1].DebtorName) {
               return true;
             }
           }
@@ -931,6 +931,14 @@ export class InvoiceTableComponent implements OnInit {
         this._snackBar.open("❌ Failed to update password. Please try again later.");
       }
     });
+  }
+
+  containsLAI(code: string): boolean {
+    if (!code) return false;
+    if (code.includes("LAI")) {
+      return true;
+    }
+    return false
   }
 
   async changePassword() {

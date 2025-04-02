@@ -203,7 +203,7 @@
                     </tr>
 
                     <!-- Show total row when the last entry for that ProjNo is reached -->
-                    <tr *ngIf="(i === invoiceDetails.length - 1 || detail.ProjNo !== invoiceDetails[i + 1].ProjNo)  && shipInfoLength[detail.ProjNo] > 1"
+                    <tr *ngIf="(showSummaryOnly && (i === invoiceDetails.length - 1 || detail.ProjNo !== invoiceDetails[i + 1].ProjNo)) || ((i === invoiceDetails.length - 1 || detail.ProjNo !== invoiceDetails[i + 1].ProjNo) && shipInfoLength[detail.ProjNo] > 1 && !showSummaryOnly)"
                         class="shipinfo-total">
                         <td *ngIf="listHasBranch" colspan="6" class="text-right"><strong>{{ detail.ProjNo }}
                                 Total</strong></td>

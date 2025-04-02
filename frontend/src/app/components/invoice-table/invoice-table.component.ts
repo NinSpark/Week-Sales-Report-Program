@@ -308,18 +308,18 @@ export class InvoiceTableComponent implements OnInit {
     this.shipInfoLength = {};
 
     this.invoiceDetails.forEach(detail => {
-      if (!this.shipInfoTotals[detail.ShipInfo]) {
-        this.shipInfoLength[detail.ShipInfo] = 0;
-        this.shipInfoTotals[detail.ShipInfo] = 0;
-        this.shipInfoQtyTotals[detail.ShipInfo] = 0;
-        this.shipInfoLitreTotals[detail.ShipInfo] = 0;
-        this.shipInfoCtnTotals[detail.ShipInfo] = 0;
+      if (!this.shipInfoTotals[detail.ProjNo]) {
+        this.shipInfoLength[detail.ProjNo] = 0;
+        this.shipInfoTotals[detail.ProjNo] = 0;
+        this.shipInfoQtyTotals[detail.ProjNo] = 0;
+        this.shipInfoLitreTotals[detail.ProjNo] = 0;
+        this.shipInfoCtnTotals[detail.ProjNo] = 0;
       }
-      this.shipInfoLength[detail.ShipInfo]++;
-      this.shipInfoTotals[detail.ShipInfo] += detail.SubTotal;
-      this.shipInfoQtyTotals[detail.ShipInfo] += detail.Qty;
-      this.shipInfoLitreTotals[detail.ShipInfo] += detail.SmallestQty;
-      this.shipInfoCtnTotals[detail.ShipInfo] += detail.Ctn;
+      this.shipInfoLength[detail.ProjNo]++;
+      this.shipInfoTotals[detail.ProjNo] += detail.SubTotal;
+      this.shipInfoQtyTotals[detail.ProjNo] += detail.Qty;
+      this.shipInfoLitreTotals[detail.ProjNo] += detail.SmallestQty;
+      this.shipInfoCtnTotals[detail.ProjNo] += detail.Ctn;
     });
   }
 
@@ -806,7 +806,7 @@ export class InvoiceTableComponent implements OnInit {
     if (rowType == 0) { // regular row
       if (!this.invoiceDetails[index].BranchName) {
         if (this.invoiceDetails[index + 1]) {
-          if (this.invoiceDetails[index].DebtorName == this.invoiceDetails[index + 1].DebtorName) {
+          if (this.invoiceDetails[index].ProjNo == this.invoiceDetails[index + 1].ProjNo && this.invoiceDetails[index].DebtorName == this.invoiceDetails[index + 1].DebtorName) {
             return true;
           }
         }
@@ -837,7 +837,7 @@ export class InvoiceTableComponent implements OnInit {
           }
         }
         else {
-          if (this.invoiceDetails[index].DebtorName == this.invoiceDetails[index + 1].DebtorName) {
+          if (this.invoiceDetails[index].ProjNo == this.invoiceDetails[index + 1].ProjNo && this.invoiceDetails[index].DebtorName == this.invoiceDetails[index + 1].DebtorName) {
             return true;
           }
         }
@@ -855,8 +855,11 @@ export class InvoiceTableComponent implements OnInit {
             return true;
           }
           if (this.invoiceDetails[index].DocNo != this.invoiceDetails[index - 1].DocNo) {
-            if (this.invoiceDetails[index].DebtorName == this.invoiceDetails[index - 1].DebtorName) {
+            if (this.invoiceDetails[index].DebtorName == this.invoiceDetails[index - 1].DebtorName && this.invoiceDetails[index].ProjNo == this.invoiceDetails[index - 1].ProjNo) {
               return true;
+            }
+            else {
+              return false;
             }
           }
 

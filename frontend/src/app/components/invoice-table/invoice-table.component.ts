@@ -182,7 +182,9 @@ export class InvoiceTableComponent implements OnInit {
               this.invoiceService.getBranchDetails(invoice.BranchCode, invoice.DeliverAddr1, this.isLensoDB)
             );
 
-            branchName = branchDetail[0].BranchName ?? "";
+            if (branchDetail[0]) {
+              branchName = branchDetail[0].BranchName ?? "";
+            }
           }
           const enrichedDetails = details.map(detail => ({
             ...detail,
@@ -231,7 +233,9 @@ export class InvoiceTableComponent implements OnInit {
               this.invoiceService.getBranchDetails(creditNote.BranchCode, creditNote.DeliverAddr1, this.isLensoDB)
             );
 
-            branchName = branchDetail[0].BranchName ?? "";
+            if (branchDetail[0]) {
+              branchName = branchDetail[0].BranchName ?? "";
+            }
           }
 
           let tmp = {
@@ -480,7 +484,9 @@ export class InvoiceTableComponent implements OnInit {
                 this.invoiceService.getBranchDetails(invoice.BranchCode, invoice.DeliverAddr1, this.isLensoDB)
               );
 
-              invoice.BranchName = branchDetail[0].BranchName ?? "";
+              if (branchDetail[0]) {
+                invoice.BranchName = branchDetail[0].BranchName ?? "";
+              }
             }
 
             if (!invoice.ProjNo) {
@@ -515,7 +521,10 @@ export class InvoiceTableComponent implements OnInit {
               const branchDetail = await lastValueFrom(
                 this.invoiceService.getBranchDetails(creditNote.BranchCode, creditNote.DeliverAddr1, this.isLensoDB)
               );
-              branchName = branchDetail[0].BranchName ?? "";
+
+              if (branchDetail[0]) {
+                branchName = branchDetail[0].BranchName ?? "";
+              }
             }
 
             let tmp = {
@@ -590,57 +599,25 @@ export class InvoiceTableComponent implements OnInit {
     const tableBody: any[] = [];
     const rows = table.querySelectorAll("tbody tr");
 
-    if (this.listHasBranch) {
+    if (this.showSummaryOnly) {
       rows.forEach((row: any) => {
         var rowData: any[] = [];
         row.querySelectorAll("td").forEach((td: any) => {
-          rowData.push(td.innerText)
+          rowData.push(td.innerText);
         });
-
-        if (rowData.length == 4) { //shipinfo total
-          rowData.splice(1, 0, "", "", "", "", "");
-          rowData = [
-            { content: rowData[0], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
-            { content: rowData[5], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } },
-          ];
-        }
-        else if (rowData.length == 5) { //debtor total
-          rowData.splice(2, 0, "", "", "", "");
-          rowData = [
-            rowData[0],
-            { content: rowData[1], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
-            { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[8], styles: { halign: "right", fontStyle: "bold" } },
-          ];
-        }
-        else if (rowData.length == 7) { //doc total
-          rowData.splice(1, 0, "", "");
-          rowData = [
-            { content: rowData[0], colSpan: 3 },
-            { content: rowData[5], colSpan: 3, styles: { halign: "left", fontStyle: "bold" } },
-            { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } },
-            rowData[8]
-          ];
-        }
-
         tableBody.push(rowData);
       });
 
-      var footerData: any[] = ["Grand Total", "", "", "", "", "", this.grandQtyTotal.toString(), this.grandSubTotal.toFixed(2), ""];
+      var footerData: any[] = ["Grand Total", this.grandQtyTotal.toString(), this.grandSubTotal.toFixed(2), ""];
       footerData = [
-        { content: footerData[0], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
-        { content: footerData[5], styles: { halign: "right", fontStyle: "bold" } },
-        { content: footerData[6], styles: { halign: "right", fontStyle: "bold" } },
-        { content: footerData[7], styles: { halign: "right", fontStyle: "bold" } }
+        { content: footerData[0], styles: { halign: "left", fontStyle: "bold" } },
+        { content: footerData[1], styles: { halign: "right", fontStyle: "bold" } },
+        { content: footerData[2], styles: { halign: "right", fontStyle: "bold" } },
+        { content: "" }
       ];
 
       tableBody.push(footerData);
 
-      // Generate the table
       autoTable(doc, {
         head: [tableHeaders], // Table headers
         body: tableBody, // Table data
@@ -649,76 +626,143 @@ export class InvoiceTableComponent implements OnInit {
         margin: { top: 10 },
         headStyles: { fillColor: [0, 92, 187], textColor: [255, 255, 255], fontStyle: 'bold' as 'bold' }, // Cast fontStyle
         columnStyles: {
-          5: { halign: 'right' },
-          6: { halign: 'right' },
-          7: { halign: 'right' },
+          1: { halign: 'right' },
+          2: { halign: 'right' },
+          3: { halign: 'right' }
         },
       });
     }
     else {
-      rows.forEach((row: any) => {
-        var rowData: any[] = [];
-        row.querySelectorAll("td").forEach((td: any) => {
-          rowData.push(td.innerText)
+      if (this.listHasBranch) {
+        rows.forEach((row: any) => {
+          var rowData: any[] = [];
+          row.querySelectorAll("td").forEach((td: any) => {
+            rowData.push(td.innerText)
+          });
+
+          if (rowData.length == 4) { //shipinfo total
+            rowData.splice(1, 0, "", "", "", "", "");
+            rowData = [
+              { content: rowData[0], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
+              { content: rowData[5], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } },
+            ];
+          }
+          else if (rowData.length == 5) { //debtor total
+            rowData.splice(2, 0, "", "", "", "");
+            rowData = [
+              rowData[0],
+              { content: rowData[1], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
+              { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[8], styles: { halign: "right", fontStyle: "bold" } },
+            ];
+          }
+          else if (rowData.length == 7) { //doc total
+            rowData.splice(1, 0, "", "");
+            rowData = [
+              { content: rowData[0], colSpan: 3 },
+              { content: rowData[5], colSpan: 3, styles: { halign: "left", fontStyle: "bold" } },
+              { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } },
+              rowData[8]
+            ];
+          }
+
+          tableBody.push(rowData);
         });
 
-        if (rowData.length == 4) { //shipinfo total
-          rowData.splice(1, 0, "", "", "", "");
-          rowData = [
-            { content: rowData[0], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
-            { content: rowData[5], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } }
-          ];
-        }
-        else if (rowData.length == 5) { //debtor total
-          rowData.splice(2, 0, "", "", "");
-          rowData = [
-            rowData[0],
-            { content: rowData[1], colSpan: 4, styles: { halign: "left", fontStyle: "bold" } },
-            { content: rowData[5], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } }
-          ];
-        }
-        else if (rowData.length == 6) { //doc total
-          rowData.splice(3, 0, "", "");
-          rowData = [
-            { content: rowData[0], colSpan: 2 },
-            { content: rowData[2], colSpan: 3, styles: { halign: "left", fontStyle: "bold" } },
-            { content: rowData[5], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
-            { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } }
-          ];
-        }
+        var footerData: any[] = ["Grand Total", "", "", "", "", "", this.grandQtyTotal.toString(), this.grandSubTotal.toFixed(2), ""];
+        footerData = [
+          { content: footerData[0], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
+          { content: footerData[5], styles: { halign: "right", fontStyle: "bold" } },
+          { content: footerData[6], styles: { halign: "right", fontStyle: "bold" } },
+          { content: footerData[7], styles: { halign: "right", fontStyle: "bold" } }
+        ];
 
-        tableBody.push(rowData);
-      });
+        tableBody.push(footerData);
 
-      var footerData: any[] = ["Grand Total", "", "", "", "", this.grandQtyTotal.toString(), this.grandSubTotal.toFixed(2), ""];
-      footerData = [
-        { content: footerData[0], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
-        { content: footerData[5], styles: { halign: "right", fontStyle: "bold" } },
-        { content: footerData[6], styles: { halign: "right", fontStyle: "bold" } },
-        { content: footerData[7], styles: { halign: "right", fontStyle: "bold" } }
-      ];
+        // Generate the table
+        autoTable(doc, {
+          head: [tableHeaders], // Table headers
+          body: tableBody, // Table data
+          theme: 'grid' as ThemeType,
+          styles: { fontSize: 8, cellPadding: 2 },
+          margin: { top: 10 },
+          headStyles: { fillColor: [0, 92, 187], textColor: [255, 255, 255], fontStyle: 'bold' as 'bold' }, // Cast fontStyle
+          columnStyles: {
+            5: { halign: 'right' },
+            6: { halign: 'right' },
+            7: { halign: 'right' },
+          },
+        });
+      }
+      else {
+        rows.forEach((row: any) => {
+          var rowData: any[] = [];
+          row.querySelectorAll("td").forEach((td: any) => {
+            rowData.push(td.innerText)
+          });
 
-      tableBody.push(footerData);
+          if (rowData.length == 4) { //shipinfo total
+            rowData.splice(1, 0, "", "", "", "");
+            rowData = [
+              { content: rowData[0], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
+              { content: rowData[5], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } }
+            ];
+          }
+          else if (rowData.length == 5) { //debtor total
+            rowData.splice(2, 0, "", "", "");
+            rowData = [
+              rowData[0],
+              { content: rowData[1], colSpan: 4, styles: { halign: "left", fontStyle: "bold" } },
+              { content: rowData[5], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } }
+            ];
+          }
+          else if (rowData.length == 6) { //doc total
+            rowData.splice(3, 0, "", "");
+            rowData = [
+              { content: rowData[0], colSpan: 2 },
+              { content: rowData[2], colSpan: 3, styles: { halign: "left", fontStyle: "bold" } },
+              { content: rowData[5], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[6], styles: { halign: "right", fontStyle: "bold" } },
+              { content: rowData[7], styles: { halign: "right", fontStyle: "bold" } }
+            ];
+          }
 
-      // Generate the table
-      autoTable(doc, {
-        head: [tableHeaders], // Table headers
-        body: tableBody, // Table data
-        theme: 'grid' as ThemeType,
-        styles: { fontSize: 8, cellPadding: 2 },
-        margin: { top: 10 },
-        headStyles: { fillColor: [0, 92, 187], textColor: [255, 255, 255], fontStyle: 'bold' as 'bold' }, // Cast fontStyle
-        columnStyles: {
-          5: { halign: 'right' },
-          6: { halign: 'right' },
-          7: { halign: 'right' },
-        },
-      });
+          tableBody.push(rowData);
+        });
+
+        var footerData: any[] = ["Grand Total", "", "", "", "", this.grandQtyTotal.toString(), this.grandSubTotal.toFixed(2), ""];
+        footerData = [
+          { content: footerData[0], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
+          { content: footerData[5], styles: { halign: "right", fontStyle: "bold" } },
+          { content: footerData[6], styles: { halign: "right", fontStyle: "bold" } },
+          { content: footerData[7], styles: { halign: "right", fontStyle: "bold" } }
+        ];
+
+        tableBody.push(footerData);
+
+        // Generate the table
+        autoTable(doc, {
+          head: [tableHeaders], // Table headers
+          body: tableBody, // Table data
+          theme: 'grid' as ThemeType,
+          styles: { fontSize: 8, cellPadding: 2 },
+          margin: { top: 10 },
+          headStyles: { fillColor: [0, 92, 187], textColor: [255, 255, 255], fontStyle: 'bold' as 'bold' }, // Cast fontStyle
+          columnStyles: {
+            5: { halign: 'right' },
+            6: { halign: 'right' },
+            7: { halign: 'right' },
+          },
+        });
+      }
     }
 
     doc.save(`${this.salesAgent} Sales Report ${moment().format("DDMMYYYY")}.pdf`);

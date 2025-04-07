@@ -837,6 +837,12 @@ export class InvoiceTableComponent implements OnInit {
           }
         }
         else {
+          if (this.invoiceDetails[index - 1].BranchName && this.invoiceDetails[index].BranchName) {
+            if (this.invoiceDetails[index - 1].BranchName == this.invoiceDetails[index].BranchName) {
+              return false;
+            }
+          }
+
           if (this.invoiceDetails[index].ProjNo == this.invoiceDetails[index + 1].ProjNo && this.invoiceDetails[index].DebtorName == this.invoiceDetails[index + 1].DebtorName) {
             return true;
           }
@@ -856,9 +862,9 @@ export class InvoiceTableComponent implements OnInit {
           }
           if (this.invoiceDetails[index].DocNo != this.invoiceDetails[index - 1].DocNo) {
             if (this.invoiceDetails[index].DebtorName == this.invoiceDetails[index - 1].DebtorName && this.invoiceDetails[index].ProjNo == this.invoiceDetails[index - 1].ProjNo) {
-              return true;
+              return false;
             }
-            else {
+            if (this.invoiceDetails[index].DebtorName != this.invoiceDetails[index - 1].DebtorName && this.invoiceDetails[index].ProjNo == this.invoiceDetails[index - 1].ProjNo) {
               return false;
             }
           }

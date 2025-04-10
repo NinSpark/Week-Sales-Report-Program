@@ -1,4 +1,5 @@
 <div class="body-container">
+    <mat-progress-bar *ngIf="isLoading" mode="indeterminate" style="position: fixed; top: 0;"></mat-progress-bar>
     <div class="login-container">
         <h2>Login</h2>
         <form (ngSubmit)="login()">

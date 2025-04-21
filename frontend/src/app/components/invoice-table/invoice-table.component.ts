@@ -68,7 +68,8 @@ export class InvoiceTableComponent implements OnInit {
   isLensoDB: boolean = false;
   showCarton: boolean = false;
   listHasBranch: boolean = false;
-  showSummaryOnly: boolean = false;
+  showDivisionSummary: boolean = false;
+  showDealerSummary: boolean = false;
 
   shipInfo = new FormControl<string[]>([])
   shipInfoList: any[] = [
@@ -112,6 +113,18 @@ export class InvoiceTableComponent implements OnInit {
   docLength: { [key: string]: number } = {};
 
   debtorTotals: {
+    [key: string]: {
+      DebtorName: string;
+      ShipInfo: string;
+      SubTotal: number;
+      Qty: number;
+      Litres: number;
+      Ctn: number;
+    }
+  } = {};
+
+  debtorSummaryLength: { [key: string]: number } = {};
+  debtorSummaryTotals: {
     [key: string]: {
       DebtorName: string;
       ShipInfo: string;
@@ -283,6 +296,8 @@ export class InvoiceTableComponent implements OnInit {
         return aSort.localeCompare(bSort);
       });
 
+      // console.log(this.invoiceDetails);
+
       this.calculateTotals();
 
     } catch (error) {
@@ -296,6 +311,7 @@ export class InvoiceTableComponent implements OnInit {
     this.calculateDocTotals();
     this.calculateBranchTotals();
     this.calculateDebtorTotals();
+    this.calculateDebtorSummaryTotals();
     this.calculateTotalsByShipInfo();
     this.calculateGrandTotal();
   }
@@ -409,6 +425,31 @@ export class InvoiceTableComponent implements OnInit {
       if (invoice.ShipInfo === 'LB') {
         this.debtorTotals[debtorKey].Litres += invoice.SmallestQty || 0;
       }
+    });
+  }
+
+  calculateDebtorSummaryTotals() {
+    this.debtorSummaryTotals = {};
+    this.debtorSummaryLength = {};
+
+    this.invoiceDetails.forEach((invoice) => {
+      if (!this.debtorSummaryTotals[invoice.DebtorName]) {
+        this.debtorSummaryLength[invoice.DebtorName] = 0;
+
+        this.debtorSummaryTotals[invoice.DebtorName] = {
+          DebtorName: invoice.DebtorName,
+          ShipInfo: invoice.ProjNo,
+          SubTotal: 0,
+          Qty: 0,
+          Litres: 0,
+          Ctn: 0,
+        };
+      }
+
+      this.debtorSummaryLength[invoice.DebtorName]++;
+      this.debtorSummaryTotals[invoice.DebtorName].SubTotal += invoice.SubTotal;
+      this.debtorSummaryTotals[invoice.DebtorName].Qty += invoice.Qty;
+      this.debtorSummaryTotals[invoice.DebtorName].Ctn += invoice.Ctn;
     });
   }
 
@@ -572,6 +613,8 @@ export class InvoiceTableComponent implements OnInit {
           return aSort.localeCompare(bSort);
         });
 
+        // console.log(this.invoiceDetails);
+
         this.calculateTotals();
       } catch (error) {
         console.error("Error fetching invoices or credit notes:", error);
@@ -598,8 +641,12 @@ export class InvoiceTableComponent implements OnInit {
     // Extract table rows manually
     const tableBody: any[] = [];
     const rows = table.querySelectorAll("tbody tr");
+    const formattedSubTotal = this.grandSubTotal.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
 
-    if (this.showSummaryOnly) {
+    if (this.showDivisionSummary) {
       rows.forEach((row: any) => {
         var rowData: any[] = [];
         row.querySelectorAll("td").forEach((td: any) => {
@@ -608,7 +655,7 @@ export class InvoiceTableComponent implements OnInit {
         tableBody.push(rowData);
       });
 
-      var footerData: any[] = ["Grand Total", this.grandQtyTotal.toString(), this.grandSubTotal.toFixed(2), ""];
+      var footerData: any[] = ["Grand Total", this.grandQtyTotal.toString(), formattedSubTotal, ""];
       footerData = [
         { content: footerData[0], styles: { halign: "left", fontStyle: "bold" } },
         { content: footerData[1], styles: { halign: "right", fontStyle: "bold" } },
@@ -629,6 +676,37 @@ export class InvoiceTableComponent implements OnInit {
           1: { halign: 'right' },
           2: { halign: 'right' },
           3: { halign: 'right' }
+        },
+      });
+    }
+    else if (this.showDealerSummary) {
+      rows.forEach((row: any) => {
+        var rowData: any[] = [];
+        row.querySelectorAll("td").forEach((td: any) => {
+          rowData.push(td.innerText);
+        });
+        tableBody.push(rowData);
+      });
+
+
+
+      var footerData: any[] = ["Grand Total", formattedSubTotal];
+      footerData = [
+        { content: footerData[0], styles: { halign: "left", fontStyle: "bold" } },
+        { content: footerData[1], styles: { halign: "right", fontStyle: "bold" } }
+      ];
+
+      tableBody.push(footerData);
+
+      autoTable(doc, {
+        head: [tableHeaders], // Table headers
+        body: tableBody, // Table data
+        theme: 'grid' as ThemeType,
+        styles: { fontSize: 8, cellPadding: 2 },
+        margin: { top: 10 },
+        headStyles: { fillColor: [0, 92, 187], textColor: [255, 255, 255], fontStyle: 'bold' as 'bold' }, // Cast fontStyle
+        columnStyles: {
+          1: { halign: 'right' }
         },
       });
     }
@@ -673,7 +751,7 @@ export class InvoiceTableComponent implements OnInit {
           tableBody.push(rowData);
         });
 
-        var footerData: any[] = ["Grand Total", "", "", "", "", "", this.grandQtyTotal.toString(), this.grandSubTotal.toFixed(2), ""];
+        var footerData: any[] = ["Grand Total", "", "", "", "", "", this.grandQtyTotal.toString(), formattedSubTotal, ""];
         footerData = [
           { content: footerData[0], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
           { content: footerData[5], styles: { halign: "right", fontStyle: "bold" } },
@@ -738,7 +816,7 @@ export class InvoiceTableComponent implements OnInit {
           tableBody.push(rowData);
         });
 
-        var footerData: any[] = ["Grand Total", "", "", "", "", this.grandQtyTotal.toString(), this.grandSubTotal.toFixed(2), ""];
+        var footerData: any[] = ["Grand Total", "", "", "", "", this.grandQtyTotal.toString(), formattedSubTotal, ""];
         footerData = [
           { content: footerData[0], colSpan: 5, styles: { halign: "left", fontStyle: "bold" } },
           { content: footerData[5], styles: { halign: "right", fontStyle: "bold" } },
@@ -1006,5 +1084,13 @@ export class InvoiceTableComponent implements OnInit {
     if (success) {
       this.newPassword = ''; // Clear input field
     }
+  }
+
+  onDivisionSummaryChange() {
+    if (this.showDivisionSummary) this.showDealerSummary = false;
+  }
+
+  onDealerSummaryChange() {
+    if (this.showDealerSummary) this.showDivisionSummary = false;
   }
 }

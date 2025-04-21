@@ -101,6 +101,9 @@ th {
 .no-invoice-message {
     text-align: center;
     margin-top: 28vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .loading-gif {

@@ -73,9 +73,9 @@ export class InvoiceService {
     });
   }
 
-  getBranchDetails(branchCode: string, DeliverAddr1: string, isLensoDB: boolean) {
+  getBranchDetails(branchCode: string, AccNo: string, isLensoDB: boolean) {
     const dbParam = isLensoDB ? 'lenso' : 'kai_shen';
-    const url = branchCode ? `${this.getBranchUrl}?branchCode=${encodeURIComponent(branchCode)}&deliverAddr1=${encodeURIComponent(DeliverAddr1)}&db=${dbParam}` : this.getBranchUrl;
+    const url = branchCode ? `${this.getBranchUrl}?branchCode=${encodeURIComponent(branchCode)}&accNo=${encodeURIComponent(AccNo)}&db=${dbParam}` : this.getBranchUrl;
     return this.http.get<any[]>(url);
   }
 

@@ -104,7 +104,7 @@ app.get('/api/invoices', async (req, res) => {
         const request = pool.request();
         request.input('salesAgent', sql.NVarChar, salesAgent);
 
-        const query = `SELECT DocKey, DocNo, DocDate, SalesAgent, BranchCode, NetTotal, DebtorName, ShipInfo, DeliverAddr1
+        const query = `SELECT DocKey, DocNo, DocDate, SalesAgent, BranchCode, NetTotal, DebtorName, ShipInfo, DebtorCode
                    FROM dbo.IV WHERE SalesAgent = @salesAgent 
                    AND DocDate >= DATEADD(WEEK, DATEDIFF(WEEK, 0, GETDATE()), 0)
                    AND Cancelled = 'F'`;
@@ -153,7 +153,7 @@ app.get("/filtered-invoices", async (req, res) => {
         let shipInfoList = JSON.parse(shipInfo);
 
         let query = `
-            SELECT i.DocKey, i.DocNo, i.DebtorName, i.ShipInfo, i.DocDate, i.BranchCode, i.DeliverAddr1,
+            SELECT i.DocKey, i.DocNo, i.DebtorName, i.ShipInfo, i.DocDate, i.BranchCode, i.DebtorCode,
                    d.Description, d.Qty, d.SubTotal, d.SmallestQty, d.ProjNo, d.ItemCode
             FROM IV i
             JOIN IVDTL d ON i.DocKey = d.DocKey
@@ -190,7 +190,7 @@ app.get('/api/credit-notes', async (req, res) => {
             return res.status(400).json({ error: 'Missing SalesAgent parameter' });
         }
 
-        const query = `SELECT DocNo, OurInvoiceNo, DocDate, SalesAgent, BranchCode, NetTotal, DebtorName, DocStatus, DeliverAddr1
+        const query = `SELECT DocNo, OurInvoiceNo, DocDate, SalesAgent, BranchCode, NetTotal, DebtorName, DocStatus, DebtorCode
                        FROM dbo.CN 
                        WHERE SalesAgent = @salesAgent
                        AND DocStatus = 'A'
@@ -242,7 +242,7 @@ app.get("/filtered-credit-notes", async (req, res) => {
         let refList = JSON.parse(shipInfo);
 
         let query = `
-            SELECT i.DocKey, i.DocNo, i.DebtorName, i.DocDate, i.SalesAgent, i.CNType, i.Ref, i.BranchCode, i.DeliverAddr1,
+            SELECT i.DocKey, i.DocNo, i.DebtorName, i.DocDate, i.SalesAgent, i.CNType, i.Ref, i.BranchCode, i.DebtorCode,
                    d.Description, d.Qty, d.SubTotal, d.SmallestQty, d.ItemCode, d.UOM, d.UnitPrice, d.ProjNo
             FROM CN i
             JOIN CNDTL d ON i.DocKey = d.DocKey
@@ -274,21 +274,21 @@ app.get("/filtered-credit-notes", async (req, res) => {
 app.get('/api/get-branch-details', async (req, res) => {
     try {
         const branchCode = req.query.branchCode;
-        const deliverAddr1 = req.query.deliverAddr1;
+        const accNo = req.query.accNo;
         const dbType = req.query.db; // 'kai_shen' or 'lenso'
         if (!branchCode) {
             return res.status(400).send('Missing branchCode parameter');
         }
-        if (!deliverAddr1) {
+        if (!accNo) {
             return res.status(400).send('Missing branchCode parameter');
         }
 
         const pool = await getDBPool(dbType);
         const request = pool.request();
         request.input('branchCode', sql.VarChar, branchCode);
-        request.input('deliverAddr1', sql.VarChar, deliverAddr1);
+        request.input('AccNo', sql.VarChar, accNo);
 
-        const result = await request.query(`SELECT * FROM dbo.Branch WHERE BranchCode = @branchCode AND Address1 = @deliverAddr1`);
+        const result = await request.query(`SELECT * FROM dbo.Branch WHERE BranchCode = @branchCode AND AccNo = @accNo`);
 
         res.json(result.recordset);
     } catch (err) {

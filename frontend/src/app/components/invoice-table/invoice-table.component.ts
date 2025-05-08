@@ -193,7 +193,7 @@ export class InvoiceTableComponent implements OnInit {
             this.listHasBranch = true;
 
             const branchDetail = await lastValueFrom(
-              this.invoiceService.getBranchDetails(invoice.BranchCode, invoice.DeliverAddr1, this.isLensoDB)
+              this.invoiceService.getBranchDetails(invoice.BranchCode, invoice.DebtorCode, this.isLensoDB)
             );
 
             if (branchDetail[0]) {
@@ -244,7 +244,7 @@ export class InvoiceTableComponent implements OnInit {
             this.listHasBranch = true;
 
             const branchDetail = await lastValueFrom(
-              this.invoiceService.getBranchDetails(creditNote.BranchCode, creditNote.DeliverAddr1, this.isLensoDB)
+              this.invoiceService.getBranchDetails(creditNote.BranchCode, creditNote.DebtorCode, this.isLensoDB)
             );
 
             if (branchDetail[0]) {
@@ -523,7 +523,7 @@ export class InvoiceTableComponent implements OnInit {
             if (invoice.BranchCode) {
               this.listHasBranch = true;
               const branchDetail = await lastValueFrom(
-                this.invoiceService.getBranchDetails(invoice.BranchCode, invoice.DeliverAddr1, this.isLensoDB)
+                this.invoiceService.getBranchDetails(invoice.BranchCode, invoice.DebtorCode, this.isLensoDB)
               );
 
               if (branchDetail[0]) {
@@ -561,7 +561,7 @@ export class InvoiceTableComponent implements OnInit {
             if (creditNote.BranchCode) {
               this.listHasBranch = true;
               const branchDetail = await lastValueFrom(
-                this.invoiceService.getBranchDetails(creditNote.BranchCode, creditNote.DeliverAddr1, this.isLensoDB)
+                this.invoiceService.getBranchDetails(creditNote.BranchCode, creditNote.DebtorCode, this.isLensoDB)
               );
 
               if (branchDetail[0]) {
@@ -614,7 +614,7 @@ export class InvoiceTableComponent implements OnInit {
           return aSort.localeCompare(bSort);
         });
 
-        // console.log(this.invoiceDetails);
+        console.log(this.invoiceDetails);
 
         this.calculateTotals();
       } catch (error) {

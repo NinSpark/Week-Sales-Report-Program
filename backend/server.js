@@ -91,6 +91,29 @@ app.get('/api/sales-agents', async (req, res) => {
     }
 });
 
+// Fetch debtors for logged-in SalesAgent
+app.get('/api/debtors', async (req, res) => {
+    try {
+        const salesAgent = req.query.salesAgent;
+        const dbType = req.query.db; // 'kai_shen' or 'lenso'
+        if (!salesAgent) {
+            return res.status(400).json({ error: 'Missing SalesAgent parameter' });
+        }
+
+        const pool = await getDBPool(dbType);
+        const request = pool.request();
+        request.input('salesAgent', sql.NVarChar, salesAgent);
+
+        const query = `SELECT * FROM dbo.Debtor WHERE SalesAgent = @salesAgent ORDER BY CompanyName`;
+
+        const result = await request.query(query);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Error fetching debtors:', err);
+        res.status(500).send('Server error');
+    }
+});
+
 // Fetch invoices for logged-in SalesAgent
 app.get('/api/invoices', async (req, res) => {
     try {
@@ -149,8 +172,9 @@ app.get("/filtered-invoices", async (req, res) => {
         const dbType = req.query.db; // 'kai_shen' or 'lenso'
         const pool = await getDBPool(dbType);
 
-        const { salesAgent, startDate, endDate, shipInfo } = req.query;
+        const { salesAgent, startDate, endDate, shipInfo, debtor } = req.query;
         let shipInfoList = JSON.parse(shipInfo);
+        let debtorList = JSON.parse(debtor);
 
         let query = `
             SELECT i.DocKey, i.DocNo, i.DebtorName, i.ShipInfo, i.DocDate, i.BranchCode, i.DebtorCode,
@@ -166,11 +190,16 @@ app.get("/filtered-invoices", async (req, res) => {
             query += ` AND i.ShipInfo IN (${shipInfoList.map((_, i) => `@ship${i}`).join(",")})`;
         }
 
+        if (debtorList.length > 0) {
+            query += ` AND i.DebtorCode IN (${debtorList.map((_, i) => `@debtor${i}`).join(",")})`;
+        }
+
         const request = pool.request();
         request.input("salesAgent", sql.VarChar, salesAgent);
         request.input("startDate", sql.Date, startDate);
         request.input("endDate", sql.Date, endDate);
         if (dbType == 'kai_shen') shipInfoList.forEach((value, index) => request.input(`ship${index}`, sql.VarChar, value));
+        debtorList.forEach((value, index) => request.input(`debtor${index}`, sql.VarChar, value));
 
         const result = await request.query(query);
         res.json(result.recordset);

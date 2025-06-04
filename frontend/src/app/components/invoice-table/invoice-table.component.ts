@@ -65,6 +65,7 @@ export class InvoiceTableComponent implements OnInit {
   invoices: any[] = [];
   salesAgent: string = "";
   invoiceDetails: any[] = [];
+  debtorList: any[] = [];
   isLoading: boolean = false;
   isLensoDB: boolean = false;
   showCarton: boolean = false;
@@ -72,7 +73,8 @@ export class InvoiceTableComponent implements OnInit {
   showDivisionSummary: boolean = false;
   showDealerSummary: boolean = false;
 
-  shipInfo = new FormControl<string[]>([])
+  shipInfo = new FormControl<string[]>([]);
+  selectedDebtor = new FormControl<string[]>([]);
   shipInfoList: any[] = [
     { id: 'BA', value: 'BA - VEGA' },
     { id: 'BB', value: 'BB - ATLASBX' },
@@ -169,6 +171,7 @@ export class InvoiceTableComponent implements OnInit {
     if (this.salesAgent) {
       this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
       this.fetchInvoices();
+      this.fetchDebtors();
     }
     else {
       this.router.navigate(['/login']); // Redirect to login page
@@ -177,6 +180,21 @@ export class InvoiceTableComponent implements OnInit {
 
   toggleDB() {
     this.applyFilter();
+  }
+
+  async fetchDebtors(): Promise<void> {
+    this.isLoading = true;
+    this.debtorList = [];
+    try {
+      const data = await lastValueFrom(this.invoiceService.getDebtors(this.salesAgent, this.isLensoDB));
+      this.debtorList = data;
+
+      this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.AccNo)]);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   async fetchInvoices(): Promise<void> {
@@ -462,12 +480,10 @@ export class InvoiceTableComponent implements OnInit {
 
   getSelectedShipInfoText(): string {
     const selectedValues = this.shipInfo.value || [];
-
     const filteredValues = selectedValues.filter(value => value !== 'All');
 
-    if (filteredValues.length === 0) {
-      return 'None Selected';
-    }
+    if (filteredValues.length === 0) return 'None Selected';
+    if (filteredValues.length >= this.shipInfoList.length) return "ALL DIVISION";
 
     return this.shipInfoList
       .filter(ship => filteredValues.includes(ship.id))
@@ -475,6 +491,18 @@ export class InvoiceTableComponent implements OnInit {
       .join(', ');
   }
 
+  getSelectedDebtorText(): string {
+    const selectedValues = this.selectedDebtor.value || [];
+    const filteredValues = selectedValues.filter(value => value !== 'all');
+
+    if (filteredValues.length === 0) return 'None Selected';
+    if (filteredValues.length == this.debtorList.length) return "ALL DEALERS";
+
+    return this.debtorList
+      .filter(debtor => filteredValues.includes(debtor.AccNo))
+      .map(debtor => debtor.CompanyName)
+      .join(', ');
+  }
 
   toggleAllSelection(value: any) {
     if (value._selected) {
@@ -483,6 +511,16 @@ export class InvoiceTableComponent implements OnInit {
     }
     else {
       this.shipInfo.setValue([]);
+    }
+  }
+
+  toggleAllDebtorSelection(value: any) {
+    if (value._selected) {
+      this.selectedDebtor.setValue(this.debtorList.map(debtor => debtor.AccNo));
+      value._selected = true;
+    }
+    else {
+      this.selectedDebtor.setValue([]);
     }
   }
 
@@ -507,13 +545,22 @@ export class InvoiceTableComponent implements OnInit {
 
       const selectedShipInfo = this.shipInfo.value;
 
+      let selectedDebtor: string[] = [];
+      if (this.selectedDebtor.value) {
+        const debtorIndex = this.selectedDebtor.value.indexOf("all");
+        if (debtorIndex > -1) {
+          this.selectedDebtor.value.splice(debtorIndex, 1);
+        }
+        selectedDebtor = this.selectedDebtor.value;
+      }
+
       this.isLoading = true;
       this.listHasBranch = false;
 
       try {
         // Fetch invoices
         const data = await lastValueFrom(
-          this.invoiceService.getFilteredInvoices(this.salesAgent, start, end, selectedShipInfo, this.isLensoDB)
+          this.invoiceService.getFilteredInvoices(this.salesAgent, start, end, selectedShipInfo, selectedDebtor, this.isLensoDB)
         );
 
         this.invoiceDetails = data;
@@ -937,6 +984,10 @@ export class InvoiceTableComponent implements OnInit {
     if (!this.invoiceDetails[index + 1]) { // last row
       if (this.invoiceDetails[index - 1]) {
         if (rowType == 0) {
+          if (this.invoiceDetails[index].ProjNo != this.invoiceDetails[index - 1].ProjNo) {
+            return false;
+          }
+
           if (this.invoiceDetails[index].DocNo == this.invoiceDetails[index - 1].DocNo) {
             return true;
           }

@@ -17,6 +17,11 @@
         justify-content: start;
         align-items: center;
         column-gap: 20px;
+        width: 100%;
+    }
+
+    .dealer-select-field {
+        width: 30%;
     }
 }
 
@@ -51,6 +56,10 @@
         mat-form-field {
             width: 90vw;
         }
+    }
+
+    .dealer-select-field {
+        width: 100%;
     }
 }
 

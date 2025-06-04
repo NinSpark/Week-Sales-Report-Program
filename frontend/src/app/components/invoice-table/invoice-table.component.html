@@ -49,7 +49,7 @@
             <mat-form-field *ngIf="!isLensoDB">
                 <mat-label>Division</mat-label>
                 <mat-select [formControl]="shipInfo" multiple [value]="'all'">
-                    <mat-option #allShipInfo (click)="toggleAllSelection(allShipInfo)" [value]="'all'">All</mat-option>
+                    <mat-option #allShipInfo (click)="toggleAllSelection(allShipInfo)" [value]="'all'">ALL DIVISION</mat-option>
                     <mat-option *ngFor="let shipInfo of shipInfoList"
                         [value]="shipInfo.id">{{shipInfo.value}}</mat-option>
                     <mat-select-trigger>
@@ -58,8 +58,20 @@
                 </mat-select>
             </mat-form-field>
 
+            <mat-form-field class="dealer-select-field">
+                <mat-label>Dealers</mat-label>
+                <mat-select [formControl]="selectedDebtor" multiple [value]="'all'">
+                    <mat-option #allDebtorInfo (click)="toggleAllDebtorSelection(allDebtorInfo)" [value]="'all'">ALL DEALERS</mat-option>
+                    <mat-option *ngFor="let debtor of debtorList"
+                        [value]="debtor.AccNo">{{debtor.CompanyName}}</mat-option>
+                    <mat-select-trigger>
+                        {{ getSelectedDebtorText() }}
+                    </mat-select-trigger>
+                </mat-select>
+            </mat-form-field>
+
             <button mat-flat-button (click)="applyFilter()"
-                [disabled]="shipInfo.value!.length == 0 || !startDate || !endDate || isLoading">Filter</button>
+                [disabled]="selectedDebtor.value!.length == 0 || shipInfo.value!.length == 0 || !startDate || !endDate || isLoading">Filter</button>
         </div>
     </div>
 

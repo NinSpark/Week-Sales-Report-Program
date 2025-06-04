@@ -12,6 +12,7 @@ export class InvoiceService {
 
   private agentUrl = `${this.domain}/api/sales-agents`;
   private apiUrl = `${this.domain}/api/invoices`;
+  private debtorUrl = `${this.domain}/api/debtors`;
   private detailUrl = `${this.domain}/api/invoice-details`;
   private filteredIVUrl = `${this.domain}/filtered-invoices`;
   private creditNoteUrl = `${this.domain}/api/credit-notes`;
@@ -26,6 +27,12 @@ export class InvoiceService {
   getInvoices(salesAgent?: string, isLensoDB?: boolean): Observable<any[]> {
     const dbParam = isLensoDB ? 'lenso' : 'kai_shen';
     const url = salesAgent ? `${this.apiUrl}?salesAgent=${salesAgent}&db=${dbParam}` : this.apiUrl;
+    return this.http.get<any[]>(url);
+  }
+
+  getDebtors(salesAgent?: string, isLensoDB?: boolean): Observable<any[]> {
+    const dbParam = isLensoDB ? 'lenso' : 'kai_shen';
+    const url = salesAgent ? `${this.debtorUrl}?salesAgent=${salesAgent}&db=${dbParam}` : this.debtorUrl;
     return this.http.get<any[]>(url);
   }
 
@@ -49,14 +56,15 @@ export class InvoiceService {
     return this.http.get<any[]>(`${this.creditNoteDetailsUrl}?docKey=${docKey}&db=${dbParam}`);
   }
 
-  getFilteredInvoices(salesAgent: string, startDate: string, endDate: string, shipInfo: string[], isLensoDB: boolean) {
+  getFilteredInvoices(salesAgent: string, startDate: string, endDate: string, shipInfo: string[], debtor: string[], isLensoDB: boolean) {
     const dbParam = isLensoDB ? 'lenso' : 'kai_shen';
     return this.http.get<any[]>(`${this.filteredIVUrl}?db=${dbParam}`, {
       params: {
         salesAgent,
         startDate,
         endDate,
-        shipInfo: JSON.stringify(shipInfo)
+        shipInfo: JSON.stringify(shipInfo),
+        debtor: JSON.stringify(debtor)
       }
     });
   }

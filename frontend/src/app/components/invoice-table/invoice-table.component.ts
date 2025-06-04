@@ -81,6 +81,7 @@ export class InvoiceTableComponent implements OnInit {
     { id: 'LB', value: 'LB - MOTUL' },
     { id: 'LC', value: 'LC - BEAST' },
     { id: 'LD', value: 'LD - KROON-OIL' },
+    { id: 'OB', value: 'BC - OLD BATTERY' },
     { id: 'OT', value: 'OT - AGING TIRE' },
     { id: 'TA', value: 'TA - RYDANZ' },
     { id: 'TB', value: 'TB - MARSHAL' },

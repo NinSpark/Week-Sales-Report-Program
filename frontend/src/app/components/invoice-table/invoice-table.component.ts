@@ -167,7 +167,6 @@ export class InvoiceTableComponent implements OnInit {
   ngOnInit(): void {
     // Get logged-in sales agent
     this.salesAgent = this.authService.getLoggedInUser() ?? '';
-    console.log(this.authService.isLensoDivision() ?? '')
 
     if (this.salesAgent) {
       if (this.authService.isLensoDivision() == 'true') {

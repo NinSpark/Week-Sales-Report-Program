@@ -169,12 +169,13 @@ export class InvoiceTableComponent implements OnInit {
     this.salesAgent = this.authService.getLoggedInUser() ?? '';
 
     if (this.salesAgent) {
+      this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
       if (this.authService.isLensoDivision() == 'true') {
         this.isLensoDB = true;
         this.toggleDB();
       }
       else {
-        this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
+        this.isLensoDB = false;
         this.fetchInvoices();
         this.fetchDebtors();
       }

@@ -167,19 +167,38 @@ export class InvoiceTableComponent implements OnInit {
   ngOnInit(): void {
     // Get logged-in sales agent
     this.salesAgent = this.authService.getLoggedInUser() ?? '';
+    console.log(this.authService.isLensoDivision() ?? '')
 
     if (this.salesAgent) {
-      this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
-      this.fetchInvoices();
-      this.fetchDebtors();
+      if (this.authService.isLensoDivision() == 'true') {
+        this.isLensoDB = true;
+        this.toggleDB();
+      }
+      else {
+        this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
+        this.fetchInvoices();
+        this.fetchDebtors();
+      }
     }
     else {
       this.router.navigate(['/login']); // Redirect to login page
     }
   }
 
-  toggleDB() {
-    this.applyFilter();
+  async toggleDB() {
+    this.isLoading = true;
+    this.debtorList = [];
+    try {
+      const data = await lastValueFrom(this.invoiceService.getDebtors(this.salesAgent, this.isLensoDB));
+      this.debtorList = data;
+
+      this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.AccNo)]);
+      this.applyFilter();
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   async fetchDebtors(): Promise<void> {
@@ -252,9 +271,18 @@ export class InvoiceTableComponent implements OnInit {
       const end = moment(this.endDate).format("YYYY-MM-DD");
       const selectedShipInfo = this.shipInfo.value!;
 
+      let selectedDebtor: string[] = [];
+      if (this.selectedDebtor.value) {
+        const debtorIndex = this.selectedDebtor.value.indexOf("all");
+        if (debtorIndex > -1) {
+          this.selectedDebtor.value.splice(debtorIndex, 1);
+        }
+        selectedDebtor = this.selectedDebtor.value;
+      }
+
       try {
         const creditNoteList = await lastValueFrom(
-          this.invoiceService.getFilteredCreditNotes(this.salesAgent, start, end, selectedShipInfo, this.isLensoDB)
+          this.invoiceService.getFilteredCreditNotes(this.salesAgent, start, end, selectedShipInfo, selectedDebtor, this.isLensoDB)
         );
 
         creditNoteList.forEach(async creditNote => {
@@ -597,9 +625,18 @@ export class InvoiceTableComponent implements OnInit {
           })
         );
 
+        let selectedDebtorForCN: string[] = [];
+        if (this.selectedDebtor.value) {
+          const debtorIndex = this.selectedDebtor.value.indexOf("all");
+          if (debtorIndex > -1) {
+            this.selectedDebtor.value.splice(debtorIndex, 1);
+          }
+          selectedDebtorForCN = this.selectedDebtor.value;
+        }
+
         // Fetch credit notes
         const creditNoteList = await lastValueFrom(
-          this.invoiceService.getFilteredCreditNotes(this.salesAgent, start, end, selectedShipInfo, this.isLensoDB)
+          this.invoiceService.getFilteredCreditNotes(this.salesAgent, start, end, selectedShipInfo, selectedDebtorForCN, this.isLensoDB)
         );
 
         const processedCreditNotes = await Promise.all(

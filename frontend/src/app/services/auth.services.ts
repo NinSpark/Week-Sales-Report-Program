@@ -6,9 +6,6 @@ import { lastValueFrom } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
-  private loggedInUser: string | null = null;
-  private loggedInUserKey = 'loggedInUser';
-
   constructor(private invoiceService: InvoiceService) { }
 
   async login(username: string, password: string): Promise<boolean> {
@@ -18,8 +15,8 @@ export class AuthService {
       );
 
       if (loginCredentials && Object.keys(loginCredentials).length > 0) {
-        this.loggedInUser = username.toUpperCase();
         localStorage.setItem('loggedInUser', username.toUpperCase()); // Store in localStorage
+        localStorage.setItem('lensoDivision', loginCredentials.lenso_division);
         return true;
       }
 
@@ -31,11 +28,14 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('loggedInUser');
-    this.loggedInUser = null;
   }
 
   getLoggedInUser(): string | null {
     return localStorage.getItem('loggedInUser');
+  }
+
+  isLensoDivision(): string | null {
+    return localStorage.getItem('lensoDivision');
   }
 
   isLoggedIn(): boolean {

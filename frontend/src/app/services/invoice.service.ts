@@ -69,14 +69,15 @@ export class InvoiceService {
     });
   }
 
-  getFilteredCreditNotes(salesAgent: string, startDate: string, endDate: string, shipInfo: string[], isLensoDB: boolean) {
+  getFilteredCreditNotes(salesAgent: string, startDate: string, endDate: string, shipInfo: string[], debtor: string[], isLensoDB: boolean) {
     const dbParam = isLensoDB ? 'lenso' : 'kai_shen';
     return this.http.get<any[]>(`${this.filteredCNUrl}?db=${dbParam}`, {
       params: {
         salesAgent,
         startDate,
         endDate,
-        shipInfo: JSON.stringify(shipInfo)
+        shipInfo: JSON.stringify(shipInfo),
+        debtor: JSON.stringify(debtor)
       }
     });
   }
@@ -89,7 +90,7 @@ export class InvoiceService {
 
   getLoginDetails(username: string, password: string) {
     const url = (username && password) ? `${this.getLoginUrl}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}` : this.getLoginUrl;
-    return this.http.get<any[]>(url);
+    return this.http.get<any>(url);
   }
 
   changePassword(username: string, newPassword: string): Observable<{ success: boolean; message?: string }> {

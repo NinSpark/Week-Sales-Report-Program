@@ -39,10 +39,10 @@ const lensoConfig = {
 };
 
 const loginPool = new Pool({
-    host: "192.168.0.254",
+    host: "192.168.0.56",
     port: 5432,
     user: "postgres",
-    password: "Director1",
+    password: "postgres",
     database: "postgres",
 });
 
@@ -267,8 +267,9 @@ app.get("/filtered-credit-notes", async (req, res) => {
         const dbType = req.query.db; // 'kai_shen' or 'lenso'
         const pool = await getDBPool(dbType);
 
-        const { salesAgent, startDate, endDate, shipInfo } = req.query;
+        const { salesAgent, startDate, endDate, shipInfo, debtor } = req.query;
         let refList = JSON.parse(shipInfo);
+        let debtorList = JSON.parse(debtor);
 
         let query = `
             SELECT i.DocKey, i.DocNo, i.DebtorName, i.DocDate, i.SalesAgent, i.CNType, i.Ref, i.BranchCode, i.DebtorCode,
@@ -285,11 +286,16 @@ app.get("/filtered-credit-notes", async (req, res) => {
             query += ` AND i.Ref IN (${refList.map((_, i) => `@ship${i}`).join(",")})`;
         }
 
+        if (debtorList.length > 0) {
+            query += ` AND i.DebtorCode IN (${debtorList.map((_, i) => `@debtor${i}`).join(",")})`;
+        }
+
         const request = pool.request();
         request.input("salesAgent", sql.VarChar, salesAgent);
         request.input("startDate", sql.Date, startDate);
         request.input("endDate", sql.Date, endDate);
         if (dbType == 'kai_shen') refList.forEach((value, index) => request.input(`ship${index}`, sql.VarChar, value));
+        debtorList.forEach((value, index) => request.input(`debtor${index}`, sql.VarChar, value));
 
         const result = await request.query(query);
         res.json(result.recordset);
@@ -337,7 +343,7 @@ app.get("/sales-login", async (req, res) => {
 
     try {
         const result = await loginPool.query(
-            "SELECT username, password FROM sales_report_login WHERE username = $1 AND password = $2",
+            "SELECT * FROM sales_report_login WHERE username = $1 AND password = $2",
             [username, password]
         );
 

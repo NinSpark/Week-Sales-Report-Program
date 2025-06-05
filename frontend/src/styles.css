@@ -1,4 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+html, body.ks-theme {
+    --mat-sys-primary: #f47c2e;
+    --mat-sys-surface-tint: #f47c2e;
+    --mat-sys-primary-container: #ffecd7;
+    --mat-sys-primary-fixed: #ffecd7;
+}
+
+html, body.lenso-theme {
+    --mat-sys-primary: #a01b1f;
+    --mat-sys-surface-tint: #a01b1f;
+    --mat-sys-primary-container: #ffd7d7;
+    --mat-sys-primary-fixed: #ffd7d7;
+}

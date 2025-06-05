@@ -1,4 +1,4 @@
-<body>
+<body [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">
     <div class="header">
         <h2>Sales Report for {{ salesAgent }}</h2>
         <div class="options-container">
@@ -103,28 +103,28 @@
         <table *ngIf="!isLoading && invoiceDetails.length > 0" id="invoiceTable">
             <thead>
                 <tr *ngIf="!showDivisionSummary && !showDealerSummary">
-                    <th style="width: 2%;"></th>
-                    <th>Debtor</th>
-                    <th *ngIf="listHasBranch">Branch</th>
-                    <th>Doc No</th>
-                    <th>Item Name</th>
-                    <th>Doc Date</th>
-                    <th>Qty</th>
-                    <th>SubTotal (MYR)</th>
-                    <th>Litres</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'" style="width: 2%;"></th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Debtor</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'" *ngIf="listHasBranch">Branch</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Doc No</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Item Name</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Doc Date</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Qty</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">SubTotal (MYR)</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Litres</th>
                 </tr>
                 <tr *ngIf="showDivisionSummary">
                     <th *ngIf="listHasBranch" colspan="6">Division</th>
                     <th *ngIf="!listHasBranch" colspan="5">Division</th>
-                    <th>Qty</th>
-                    <th>SubTotal (MYR)</th>
-                    <th>Litres</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Qty</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">SubTotal (MYR)</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Litres</th>
                 </tr>
                 <tr *ngIf="showDealerSummary">
-                    <th>Dealer</th>
-                    <!-- <th>Qty</th> -->
-                    <th>SubTotal (MYR)</th>
-                    <!-- <th>Litres</th> -->
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Dealer</th>
+                    <!-- <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Qty</th> -->
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">SubTotal (MYR)</th>
+                    <!-- <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Litres</th> -->
                 </tr>
             </thead>
             <tbody *ngIf="!showDealerSummary">

@@ -1,8 +1,30 @@
 .body-container {
     height: 100vh;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    background-image: url('https://kaishen.com.my/wp-content/uploads/2024/08/Kai-Shen-Building-scaled.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.body-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Adjust opacity as needed */
+  z-index: 1;
+}
+
+.body-container > * {
+  position: relative;
+  z-index: 2;
+  color: white; /* Optional: ensures text is visible */
 }
 
 .login-container {
@@ -36,7 +58,7 @@ input {
 }
 
 button {
-    background: #007bff;
+    background: #f47c2e;
     color: #fff;
     padding: 10px;
     border: none;
@@ -47,7 +69,7 @@ button {
 }
 
 button:hover {
-    background: #0056b3;
+    background: #b35100;
 }
 
 .error {

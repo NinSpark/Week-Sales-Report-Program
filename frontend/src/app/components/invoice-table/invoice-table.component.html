@@ -49,9 +49,9 @@
             <mat-form-field *ngIf="!isLensoDB">
                 <mat-label>Division</mat-label>
                 <mat-select [formControl]="shipInfo" multiple [value]="'all'">
-                    <mat-option #allShipInfo (click)="toggleAllSelection(allShipInfo)" [value]="'all'">ALL DIVISION</mat-option>
+                    <mat-option #allShipInfo (click)="toggleAllSelection(allShipInfo)" [value]="'all'" [disabled]="shouldDisableShipInfo('all')">ALL DIVISION</mat-option>
                     <mat-option *ngFor="let shipInfo of shipInfoList"
-                        [value]="shipInfo.id">{{shipInfo.value}}</mat-option>
+                        [value]="shipInfo.id" [disabled]="shouldDisableShipInfo(shipInfo.id)">{{shipInfo.value}}</mat-option>
                     <mat-select-trigger>
                         {{ getSelectedShipInfoText() }}
                     </mat-select-trigger>
@@ -66,6 +66,23 @@
                     <mat-option value="KCH">KCH</mat-option>
                     <mat-option value="KKW">KKW</mat-option>
                     <mat-option value="YCL">YCL</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field *ngIf="salesAgent == 'CHL'">
+                <mat-label>MOTUL Salesman</mat-label>
+                <mat-select [(ngModel)]="selectedSalesAgent" (selectionChange)="fetchDebtors()">
+                    <mat-option value="CHL">CHL</mat-option>
+                    <mat-option value="HSL">HSL</mat-option>
+                    <mat-option value="HYH">HYH</mat-option>
+                    <mat-option value="KCY">KCY</mat-option>
+                    <mat-option value="KKS">KKS</mat-option>
+                    <mat-option value="LKF">LKF</mat-option>
+                    <mat-option value="LVC">LVC</mat-option>
+                    <mat-option value="LSS">LSS</mat-option>
+                    <mat-option value="TFS">TFS</mat-option>
+                    <mat-option value="TKK">TKK</mat-option>
+                    <mat-option value="YAPKL">YAPKL</mat-option>
                 </mat-select>
             </mat-form-field>
 

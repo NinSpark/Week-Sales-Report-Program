@@ -15,6 +15,7 @@ body {
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+html,
 html.ks-theme,
 body.ks-theme {
     --mat-sys-primary: #f47c2e;

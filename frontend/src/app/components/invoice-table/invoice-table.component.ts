@@ -75,7 +75,7 @@ export class InvoiceTableComponent implements OnInit {
 
   shipInfo = new FormControl<string[]>([]);
   selectedDebtor = new FormControl<string[]>([]);
-  selectedSalesAgent: string = "KCL";
+  selectedSalesAgent: string = "";
   shipInfoList: any[] = [
     { id: 'BA', value: 'BA - VEGA' },
     { id: 'BB', value: 'BB - ATLASBX' },
@@ -171,6 +171,7 @@ export class InvoiceTableComponent implements OnInit {
     this.salesAgent = this.authService.getLoggedInUser() ?? '';
 
     if (this.salesAgent) {
+      this.selectedSalesAgent = this.salesAgent;
       this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
       if (this.authService.isLensoDivision() == 'true') {
         this.isLensoDB = true;
@@ -187,6 +188,11 @@ export class InvoiceTableComponent implements OnInit {
     else {
       this.router.navigate(['/login']); // Redirect to login page
     }
+  }
+
+  shouldDisableShipInfo(id: string): boolean {
+    console.log(this.shipInfo.value!)
+    return this.salesAgent === 'CHL' && this.selectedSalesAgent !== 'CHL' && id != "LB";
   }
 
   setTheme() {
@@ -217,9 +223,20 @@ export class InvoiceTableComponent implements OnInit {
   async fetchDebtors(): Promise<void> {
     this.selectedDebtor.disable();
     this.debtorList = [];
+
+    // Michael's MOTUL only
+    if (this.salesAgent == "CHL") {
+      if (this.selectedSalesAgent != "CHL") {
+        this.shipInfo.setValue(['LB']);
+      }
+      else {
+        this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
+      }
+    }
+
     try {
       let data: any[] = [];
-      if (this.salesAgent == "KCL") {
+      if (this.salesAgent == "KCL" || this.salesAgent == "CHL") {
         data = await lastValueFrom(this.invoiceService.getDebtors(this.selectedSalesAgent, this.isLensoDB));
       }
       else {
@@ -622,7 +639,7 @@ export class InvoiceTableComponent implements OnInit {
       try {
         // Fetch invoices
         let data: any[] = [];
-        if (this.salesAgent == "KCL") {
+        if (this.salesAgent == "KCL" || this.salesAgent == "CHL") {
           data = await lastValueFrom(
             this.invoiceService.getFilteredInvoices(this.selectedSalesAgent, start, end, selectedShipInfo, selectedDebtor, this.isLensoDB)
           );
@@ -678,7 +695,7 @@ export class InvoiceTableComponent implements OnInit {
 
         // Fetch credit notes
         let creditNoteList: any[] = [];
-        if (this.salesAgent == "KCL") {
+        if (this.salesAgent == "KCL" || this.salesAgent == "CHL") {
           creditNoteList = await lastValueFrom(
             this.invoiceService.getFilteredCreditNotes(this.selectedSalesAgent, start, end, selectedShipInfo, selectedDebtorForCN, this.isLensoDB)
           );

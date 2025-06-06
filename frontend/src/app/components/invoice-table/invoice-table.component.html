@@ -114,8 +114,8 @@
                     <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Litres</th>
                 </tr>
                 <tr *ngIf="showDivisionSummary">
-                    <th *ngIf="listHasBranch" colspan="6">Division</th>
-                    <th *ngIf="!listHasBranch" colspan="5">Division</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'" *ngIf="listHasBranch" colspan="6">Division</th>
+                    <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'" *ngIf="!listHasBranch" colspan="5">Division</th>
                     <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Qty</th>
                     <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">SubTotal (MYR)</th>
                     <th [ngClass]="isLensoDB ? 'lenso-theme' : 'ks-theme'">Litres</th>

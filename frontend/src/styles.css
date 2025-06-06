@@ -3,6 +3,11 @@
 html,
 body {
     height: 100%;
+    transition:
+        --mat-sys-primary 0.3s ease,
+        --mat-sys-surface-tint 0.3s ease,
+        --mat-sys-primary-container 0.3s ease,
+        --mat-sys-primary-fixed 0.3s ease;
 }
 
 body {
@@ -10,14 +15,16 @@ body {
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-html, body.ks-theme {
+html.ks-theme,
+body.ks-theme {
     --mat-sys-primary: #f47c2e;
     --mat-sys-surface-tint: #f47c2e;
     --mat-sys-primary-container: #ffecd7;
     --mat-sys-primary-fixed: #ffecd7;
 }
 
-html, body.lenso-theme {
+html.lenso-theme,
+body.lenso-theme {
     --mat-sys-primary: #a01b1f;
     --mat-sys-surface-tint: #a01b1f;
     --mat-sys-primary-container: #ffd7d7;

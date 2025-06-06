@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InvoiceService } from '../../services/invoice.service';
 import { AuthService } from '../../services/auth.services';
@@ -162,7 +162,8 @@ export class InvoiceTableComponent implements OnInit {
   constructor(
     private invoiceService: InvoiceService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private renderer: Renderer2
   ) { }
 
   ngOnInit(): void {
@@ -180,15 +181,26 @@ export class InvoiceTableComponent implements OnInit {
         this.fetchInvoices();
         this.fetchDebtors();
       }
+
+      this.setTheme();
     }
     else {
       this.router.navigate(['/login']); // Redirect to login page
     }
   }
 
+  setTheme() {
+    const htmlElement = document.documentElement;
+    htmlElement.classList.remove('ks-theme', 'lenso-theme');
+    const theme = this.isLensoDB ? 'lenso-theme' : "ks-theme";
+    this.renderer.addClass(htmlElement, theme);
+  }
+
   async toggleDB() {
     this.isLoading = true;
+    this.setTheme();
     this.debtorList = [];
+
     try {
       const data = await lastValueFrom(this.invoiceService.getDebtors(this.salesAgent, this.isLensoDB));
       this.debtorList = data;

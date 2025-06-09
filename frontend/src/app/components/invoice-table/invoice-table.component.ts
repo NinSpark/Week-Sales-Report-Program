@@ -211,8 +211,9 @@ export class InvoiceTableComponent implements OnInit {
       const data = await lastValueFrom(this.invoiceService.getDebtors(this.salesAgent, this.isLensoDB));
       this.debtorList = data;
 
-      this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.AccNo)]);
-      this.applyFilter();
+      // this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.DebtorCode)]);
+      await this.applyFilter();
+      this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.DebtorCode)]);
     } catch (error) {
       console.error('Error fetching invoices:', error);
     } finally {
@@ -259,7 +260,7 @@ export class InvoiceTableComponent implements OnInit {
       const data = await lastValueFrom(this.invoiceService.getDebtors(this.salesAgent, this.isLensoDB));
       this.debtorList = data;
 
-      this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.AccNo)]);
+      this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.DebtorCode)]);
     } catch (error) {
       console.error('Error fetching invoices:', error);
     } finally {
@@ -595,7 +596,7 @@ export class InvoiceTableComponent implements OnInit {
 
   toggleAllDebtorSelection(value: any) {
     if (value._selected) {
-      this.selectedDebtor.setValue(this.debtorList.map(debtor => debtor.AccNo));
+      this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.DebtorCode)]);
       value._selected = true;
     }
     else {

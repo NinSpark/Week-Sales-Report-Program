@@ -40,9 +40,9 @@ export class InvoiceService {
     return this.http.get<any[]>(this.agentUrl);
   }
 
-  getInvoiceDetails(docKey: number, isLensoDB: boolean): Observable<any[]> {
+  getInvoiceDetails(docKey: number, isLensoDB: boolean, includeMiscItem: boolean): Observable<any[]> {
     const dbParam = isLensoDB ? 'lenso' : 'kai_shen';
-    return this.http.get<any[]>(`${this.detailUrl}?docKey=${docKey}&db=${dbParam}`);
+    return this.http.get<any[]>(`${this.detailUrl}?docKey=${docKey}&db=${dbParam}&includeMiscItem=${includeMiscItem}`);
   }
 
   getCreditNote(salesAgent?: string, isLensoDB?: boolean): Observable<any[]> {
@@ -56,9 +56,9 @@ export class InvoiceService {
     return this.http.get<any[]>(`${this.creditNoteDetailsUrl}?docKey=${docKey}&db=${dbParam}`);
   }
 
-  getFilteredInvoices(salesAgent: string, startDate: string, endDate: string, shipInfo: string[], debtor: string[], isLensoDB: boolean) {
+  getFilteredInvoices(salesAgent: string, startDate: string, endDate: string, shipInfo: string[], debtor: string[], isLensoDB: boolean, includeMiscItem: boolean) {
     const dbParam = isLensoDB ? 'lenso' : 'kai_shen';
-    return this.http.get<any[]>(`${this.filteredIVUrl}?db=${dbParam}`, {
+    return this.http.get<any[]>(`${this.filteredIVUrl}?db=${dbParam}&includeMiscItem=${includeMiscItem}`, {
       params: {
         salesAgent,
         startDate,

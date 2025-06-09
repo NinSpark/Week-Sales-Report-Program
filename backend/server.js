@@ -104,7 +104,18 @@ app.get('/api/debtors', async (req, res) => {
         const request = pool.request();
         request.input('salesAgent', sql.NVarChar, salesAgent);
 
-        const query = `SELECT * FROM dbo.Debtor WHERE SalesAgent = @salesAgent ORDER BY CompanyName`;
+        const query = `
+            WITH RankedIV AS (
+                SELECT *, 
+                       ROW_NUMBER() OVER (PARTITION BY DebtorCode ORDER BY DebtorName) AS rn
+                FROM dbo.IV
+                WHERE SalesAgent = @salesAgent
+            )
+            SELECT *
+            FROM RankedIV
+            WHERE rn = 1
+            ORDER BY DebtorName;
+        `;
 
         const result = await request.query(query);
         res.json(result.recordset);
@@ -145,6 +156,7 @@ app.get('/api/invoice-details', async (req, res) => {
     try {
         const docKey = req.query.docKey;
         const dbType = req.query.db; // 'kai_shen' or 'lenso'
+        const includeMiscItem = req.query.includeMiscItem;
         if (!docKey) {
             return res.status(400).send('Missing docKey parameter');
         }
@@ -153,12 +165,16 @@ app.get('/api/invoice-details', async (req, res) => {
         const request = pool.request();
         request.input('docKey', sql.Int, docKey);
 
-        const result = await request.query(`
+        var query = `
             SELECT ItemCode, Description, ProjNo, UOM, Qty, SmallestQty, UnitPrice, SubTotal
             FROM dbo.IVDTL
-            WHERE DocKey = @docKey
-            AND ItemCode NOT LIKE 'Z%'
-        `);
+            WHERE DocKey = @docKey`;
+
+        if (includeMiscItem == 'false') {
+            query += ` AND ItemCode NOT LIKE 'Z%'`;
+        }
+
+        const result = await request.query(query);
 
         res.json(result.recordset);
     } catch (err) {
@@ -172,7 +188,7 @@ app.get("/filtered-invoices", async (req, res) => {
         const dbType = req.query.db; // 'kai_shen' or 'lenso'
         const pool = await getDBPool(dbType);
 
-        const { salesAgent, startDate, endDate, shipInfo, debtor } = req.query;
+        const { salesAgent, startDate, endDate, shipInfo, debtor, includeMiscItem } = req.query;
         let shipInfoList = JSON.parse(shipInfo);
         let debtorList = JSON.parse(debtor);
 
@@ -183,8 +199,11 @@ app.get("/filtered-invoices", async (req, res) => {
             JOIN IVDTL d ON i.DocKey = d.DocKey
             WHERE i.SalesAgent = @salesAgent
             AND i.DocDate BETWEEN @startDate AND @endDate
-            AND i.Cancelled = 'F'
-            AND ItemCode NOT LIKE 'Z%'`;
+            AND i.Cancelled = 'F'`;
+
+        if (includeMiscItem == 'false') {
+            query += ` AND ItemCode NOT LIKE 'Z%'`;
+        }
 
         if (dbType == 'kai_shen' && shipInfoList.length > 0) {
             query += ` AND i.ShipInfo IN (${shipInfoList.map((_, i) => `@ship${i}`).join(",")})`;

@@ -72,6 +72,7 @@ export class InvoiceTableComponent implements OnInit {
   listHasBranch: boolean = false;
   showDivisionSummary: boolean = false;
   showDealerSummary: boolean = false;
+  includeMiscItems: boolean = false;
 
   shipInfo = new FormControl<string[]>([]);
   selectedDebtor = new FormControl<string[]>([]);
@@ -191,7 +192,6 @@ export class InvoiceTableComponent implements OnInit {
   }
 
   shouldDisableShipInfo(id: string): boolean {
-    console.log(this.shipInfo.value!)
     return this.salesAgent === 'CHL' && this.selectedSalesAgent !== 'CHL' && id != "LB";
   }
 
@@ -244,7 +244,7 @@ export class InvoiceTableComponent implements OnInit {
       }
       this.debtorList = data;
 
-      this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.AccNo)]);
+      this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.DebtorCode)]);
     } catch (error) {
       console.error('Error fetching invoices:', error);
     } finally {
@@ -276,7 +276,7 @@ export class InvoiceTableComponent implements OnInit {
       this.invoiceDetails = [];
 
       const fetchDetailsPromises = this.invoices.map(invoice =>
-        lastValueFrom(this.invoiceService.getInvoiceDetails(invoice.DocKey, this.isLensoDB)).then(async details => {
+        lastValueFrom(this.invoiceService.getInvoiceDetails(invoice.DocKey, this.isLensoDB, this.includeMiscItems)).then(async details => {
           let branchName = "";
           if (invoice.BranchCode) {
             this.listHasBranch = true;
@@ -578,8 +578,8 @@ export class InvoiceTableComponent implements OnInit {
     if (filteredValues.length == this.debtorList.length) return "ALL DEALERS";
 
     return this.debtorList
-      .filter(debtor => filteredValues.includes(debtor.AccNo))
-      .map(debtor => debtor.CompanyName)
+      .filter(debtor => filteredValues.includes(debtor.DebtorCode))
+      .map(debtor => debtor.DebtorName)
       .join(', ');
   }
 
@@ -632,6 +632,9 @@ export class InvoiceTableComponent implements OnInit {
         }
         selectedDebtor = this.selectedDebtor.value;
       }
+      else {
+        this._snackBar.open("❌ No dealer was selected. Please choose at least 1 dealer to filter.")
+      }
 
       this.isLoading = true;
       this.listHasBranch = false;
@@ -641,12 +644,12 @@ export class InvoiceTableComponent implements OnInit {
         let data: any[] = [];
         if (this.salesAgent == "KCL" || this.salesAgent == "CHL") {
           data = await lastValueFrom(
-            this.invoiceService.getFilteredInvoices(this.selectedSalesAgent, start, end, selectedShipInfo, selectedDebtor, this.isLensoDB)
+            this.invoiceService.getFilteredInvoices(this.selectedSalesAgent, start, end, selectedShipInfo, selectedDebtor, this.isLensoDB, this.includeMiscItems)
           );
         }
         else {
           data = await lastValueFrom(
-            this.invoiceService.getFilteredInvoices(this.salesAgent, start, end, selectedShipInfo, selectedDebtor, this.isLensoDB)
+            this.invoiceService.getFilteredInvoices(this.salesAgent, start, end, selectedShipInfo, selectedDebtor, this.isLensoDB, this.includeMiscItems)
           );
         }
 

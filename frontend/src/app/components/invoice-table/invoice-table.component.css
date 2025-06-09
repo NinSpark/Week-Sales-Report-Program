@@ -111,10 +111,24 @@ th.lenso-theme {
     color: white;
 }
 
-.loading-container,
 .no-invoice-message {
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.loading-container {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin-top: 28vh;
+}
+
+.no-sales-found {
+    margin-top: 20vh;
     display: flex;
     justify-content: center;
     align-items: center;

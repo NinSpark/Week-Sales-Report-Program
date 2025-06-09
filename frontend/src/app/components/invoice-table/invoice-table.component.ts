@@ -208,12 +208,20 @@ export class InvoiceTableComponent implements OnInit {
     this.debtorList = [];
 
     try {
-      const data = await lastValueFrom(this.invoiceService.getDebtors(this.salesAgent, this.isLensoDB));
+      let data: any[] = [];
+      if (this.salesAgent == "KCL" || this.salesAgent == "CHL" || this.salesAgent == "LSK") {
+        data = await lastValueFrom(this.invoiceService.getDebtors(this.selectedSalesAgent, this.isLensoDB));
+      }
+      else {
+        data = await lastValueFrom(this.invoiceService.getDebtors(this.salesAgent, this.isLensoDB));
+      }
       this.debtorList = data;
+      this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.DebtorCode)]);
+      this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
 
-      // this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.DebtorCode)]);
       await this.applyFilter();
       this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.DebtorCode)]);
+      this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
     } catch (error) {
       console.error('Error fetching invoices:', error);
     } finally {
@@ -237,7 +245,7 @@ export class InvoiceTableComponent implements OnInit {
 
     try {
       let data: any[] = [];
-      if (this.salesAgent == "KCL" || this.salesAgent == "CHL") {
+      if (this.salesAgent == "KCL" || this.salesAgent == "CHL" || this.salesAgent == "LSK") {
         data = await lastValueFrom(this.invoiceService.getDebtors(this.selectedSalesAgent, this.isLensoDB));
       }
       else {
@@ -643,7 +651,7 @@ export class InvoiceTableComponent implements OnInit {
       try {
         // Fetch invoices
         let data: any[] = [];
-        if (this.salesAgent == "KCL" || this.salesAgent == "CHL") {
+        if (this.salesAgent == "KCL" || this.salesAgent == "CHL" || this.salesAgent == "LSK") {
           data = await lastValueFrom(
             this.invoiceService.getFilteredInvoices(this.selectedSalesAgent, start, end, selectedShipInfo, selectedDebtor, this.isLensoDB, this.includeMiscItems)
           );
@@ -699,7 +707,7 @@ export class InvoiceTableComponent implements OnInit {
 
         // Fetch credit notes
         let creditNoteList: any[] = [];
-        if (this.salesAgent == "KCL" || this.salesAgent == "CHL") {
+        if (this.salesAgent == "KCL" || this.salesAgent == "CHL" || this.salesAgent == "LSK") {
           creditNoteList = await lastValueFrom(
             this.invoiceService.getFilteredCreditNotes(this.selectedSalesAgent, start, end, selectedShipInfo, selectedDebtorForCN, this.isLensoDB)
           );
@@ -770,7 +778,7 @@ export class InvoiceTableComponent implements OnInit {
           return aSort.localeCompare(bSort);
         });
 
-        console.log(this.invoiceDetails);
+        // console.log(this.invoiceDetails);
 
         this.calculateTotals();
       } catch (error) {

@@ -87,6 +87,43 @@
                 </mat-select>
             </mat-form-field>
 
+            <mat-form-field *ngIf="salesAgent == 'LSK'">
+                <mat-label>Salesmen</mat-label>
+                <mat-select [(ngModel)]="selectedSalesAgent" (selectionChange)="fetchDebtors()">
+                    <mat-option value="CHK">CHK</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="CHL">CHL</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="GBS">GBS</mat-option>
+                    <mat-option value="GKS">GKS</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="HSL">HSL</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="HYH">HYH</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="KCH">KCH</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="KCL">KCL</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="KCY">KCY</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="KKS">KKS</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="KKW">KKW</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="LCN">LCN</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="LHS">LHS</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="LKF">LKF</mat-option>
+                    <mat-option value="LKY">LKY</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="LSS">LSS</mat-option>
+                    <mat-option value="LSK">LSK</mat-option>
+                    <mat-option value="LSY">LSY</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="LVC">LVC</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="LWC">LWC</mat-option>
+                    <mat-option value="SKW">SKW</mat-option>
+                    <mat-option value="TCH">TCH</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="TFS">TFS</mat-option>
+                    <mat-option value="TKG">TKG</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="TKK">TKK</mat-option>
+                    <mat-option value="WKH">WKH</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="WKW">WKW</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="YAPKL">YAPKL</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="YCL">YCL</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="YCT">YCT</mat-option>
+                    <mat-option *ngIf="!isLensoDB" value="YYC">YYC</mat-option>
+                </mat-select>
+            </mat-form-field>
+
             <mat-form-field class="dealer-select-field">
                 <mat-label>Dealers</mat-label>
                 <mat-select [formControl]="selectedDebtor" multiple [value]="'all'">
@@ -179,11 +216,11 @@
                         <td>{{ detail.Description }} <strong *ngIf="containsLAI(detail.ItemCode)">[LAI]</strong></td>
                         <td>{{ detail.DocDate | date:'dd/MM/yyyy' }}</td>
                         <td class="text-end-align"> <span class="carton-span"
-                                *ngIf="detail.ProjNo[0] == 'L' && showCarton"> ({{detail.Ctn | number: '2.'}} ctn)
+                                *ngIf="detail.ProjNo[0] == 'L' && showCarton"> ({{detail.Ctn | number:'1.0-0'}} ctn)
                             </span>{{ detail.Qty
                             }}</td>
                         <td class="text-end-align">{{ detail.SubTotal.toFixed(2) | number:'1.2-2' }}</td>
-                        <td class="text-end-align" *ngIf="detail.ProjNo == 'LB'">{{ detail.SmallestQty | number: '2.' }}
+                        <td class="text-end-align" *ngIf="detail.ProjNo == 'LB'">{{ detail.SmallestQty | number: '2.'}}
                         </td>
                         <td *ngIf="detail.ProjNo != 'LB'"></td>
                     </tr>
@@ -204,12 +241,12 @@
                         <td class="text-end-align">
                             <strong>
                                 <span class="carton-span" *ngIf="detail.ProjNo[0] == 'L' && showCarton">
-                                    ({{docCtnTotals[`${detail.DocNo}-${detail.ProjNo}`] | number: '2.'}} ctn) </span>
+                                    ({{docCtnTotals[`${detail.DocNo}-${detail.ProjNo}`] | number:'1.0-0'}} ctn) </span>
                                 {{ docQtyTotals[`${detail.DocNo}-${detail.ProjNo}`] }}
                             </strong>
                         </td>
                         <td class="text-end-align"><strong>{{
-                                docSubTotals[`${detail.DocNo}-${detail.ProjNo}`].toFixed(2) | number:'1.2-2' }}</strong>
+                                docSubTotals[`${detail.DocNo}-${detail.ProjNo}`].toFixed(2) | number:'1.2-2'}}</strong>
                         </td>
                         <td class="text-end-align" *ngIf="detail.ProjNo == 'LB'"><strong>{{
                                 docLitreTotals[`${detail.DocNo}-${detail.ProjNo}`]
@@ -229,7 +266,7 @@
                         <td colspan="4"><strong>{{ detail.BranchName }} Total</strong></td>
                         <td class="text-end-align"><strong>
                                 <span class="carton-span" *ngIf="detail.ProjNo[0] == 'L' && showCarton">
-                                    ({{ branchTotals[`${detail.BranchName}-${detail.ProjNo}`].Ctn | number: '2.' }} ctn)
+                                    ({{ branchTotals[`${detail.BranchName}-${detail.ProjNo}`].Ctn | number:'1.0-0'}} ctn)
                                 </span>
                                 {{ branchTotals[detail.BranchName + '-' + detail.ProjNo].Qty }}</strong></td>
                         <td class="text-end-align"><strong>{{ branchTotals[detail.BranchName + '-' +
@@ -253,7 +290,7 @@
                                 Total</strong></td>
                         <td class="text-end-align"><strong>
                                 <span class="carton-span" *ngIf="detail.ProjNo[0] == 'L' && showCarton"> ({{
-                                    debtorTotals[detail.DebtorName + '-' + detail.ProjNo].Ctn | number: '2.' }} ctn)
+                                    debtorTotals[detail.DebtorName + '-' + detail.ProjNo].Ctn | number:'1.0-0'}} ctn)
                                 </span>
                                 {{ debtorTotals[detail.DebtorName + '-' + detail.ProjNo].Qty }}</strong></td>
                         <td class="text-end-align"><strong>{{ debtorTotals[detail.DebtorName + '-' +

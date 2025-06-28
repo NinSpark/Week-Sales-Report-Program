@@ -85,6 +85,7 @@ export class InvoiceTableComponent implements OnInit {
     { id: 'LB', value: 'LB - MOTUL' },
     { id: 'LC', value: 'LC - BEAST' },
     { id: 'LD', value: 'LD - KROON-OIL' },
+    { id: 'LE', value: 'LE - MOTOR MEDIC' },
     { id: 'OB', value: 'BC - OLD BATTERY' },
     { id: 'OT', value: 'OT - AGING TIRE' },
     { id: 'TA', value: 'TA - RYDANZ' },
@@ -206,6 +207,8 @@ export class InvoiceTableComponent implements OnInit {
     this.isLoading = true;
     this.setTheme();
     this.debtorList = [];
+
+    if (this.salesAgent != "LSK") this.selectedSalesAgent = this.salesAgent;
 
     try {
       let data: any[] = [];

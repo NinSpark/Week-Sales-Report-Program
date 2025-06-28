@@ -59,7 +59,7 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field *ngIf="salesAgent == 'KCL'">
+            <mat-form-field *ngIf="salesAgent == 'KCL' && !isLensoDB">
                 <mat-label>Salesman</mat-label>
                 <mat-select [(ngModel)]="selectedSalesAgent" (selectionChange)="fetchDebtors()">
                     <mat-option value="KCL">KCL</mat-option>
@@ -70,7 +70,7 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field *ngIf="salesAgent == 'CHL'">
+            <mat-form-field *ngIf="salesAgent == 'CHL' && !isLensoDB">
                 <mat-label>MOTUL Team</mat-label>
                 <mat-select [(ngModel)]="selectedSalesAgent" (selectionChange)="fetchDebtors()">
                     <mat-option value="CHL">CHL</mat-option>
@@ -143,7 +143,6 @@
     </div>
 
     <div class="preheader-container">
-        <!-- <mat-checkbox [(ngModel)]="isLensoDB" (change)="toggleDB()" [disabled]="isLoading">Lenso Report</mat-checkbox> -->
         <mat-checkbox *ngIf="!isLensoDB" [(ngModel)]="showCarton" [disabled]="isLoading || showDealerSummary">Show
             Carton</mat-checkbox>
         <mat-checkbox [(ngModel)]="includeMiscItems" (change)="applyFilter()" [disabled]="isLoading">Include

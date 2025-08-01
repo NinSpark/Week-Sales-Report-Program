@@ -174,7 +174,7 @@ export class InvoiceTableComponent implements OnInit {
 
     if (this.salesAgent) {
       this.selectedSalesAgent = this.salesAgent;
-      this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
+      this.shipInfo.setValue(['all', 'BA/BB', 'LB/LD', ...this.shipInfoList.map(ship => ship.id)]);
       if (this.authService.isLensoDivision() == 'true') {
         this.isLensoDB = true;
         this.toggleDB();
@@ -220,11 +220,11 @@ export class InvoiceTableComponent implements OnInit {
       }
       this.debtorList = data;
       this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.DebtorCode)]);
-      this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
+      this.shipInfo.setValue(['all', 'BA/BB', 'LB/LD', ...this.shipInfoList.map(ship => ship.id)]);
 
       await this.applyFilter();
       this.selectedDebtor.setValue(['all', ...this.debtorList.map(debtor => debtor.DebtorCode)]);
-      this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
+      this.shipInfo.setValue(['all', 'BA/BB', 'LB/LD', ...this.shipInfoList.map(ship => ship.id)]);
     } catch (error) {
       console.error('Error fetching invoices:', error);
     } finally {
@@ -242,7 +242,7 @@ export class InvoiceTableComponent implements OnInit {
         this.shipInfo.setValue(['LB']);
       }
       else {
-        this.shipInfo.setValue(['all', 'BA/BB', ...this.shipInfoList.map(ship => ship.id)]);
+        this.shipInfo.setValue(['all', 'BA/BB', 'LB/LD', ...this.shipInfoList.map(ship => ship.id)]);
       }
     }
 
@@ -632,6 +632,10 @@ export class InvoiceTableComponent implements OnInit {
 
       if (this.shipInfo.value.includes('BA') && this.shipInfo.value.includes('BB')) {
         this.shipInfo.value.push('BA/BB');
+      }
+
+      if (this.shipInfo.value.includes('LB') && this.shipInfo.value.includes('LD')) {
+        this.shipInfo.value.push('LB/LD');
       }
 
       const selectedShipInfo = this.shipInfo.value;

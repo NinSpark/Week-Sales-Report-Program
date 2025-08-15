@@ -313,6 +313,10 @@ export class InvoiceTableComponent implements OnInit {
           this.invoiceDetails = [...this.invoiceDetails, ...enrichedDetails];
 
           this.invoiceDetails.forEach((invoice) => {
+            if (!invoice.ProjNo[0]) {
+              this._snackBar.open("Error Detected: Missing Proj No. Sales Report might encounter issue.")
+            }
+
             if (invoice.ProjNo[0] == "L") {
               const regex = /(\d+)X[\d.]+L/g;
               let match;
@@ -378,6 +382,10 @@ export class InvoiceTableComponent implements OnInit {
             UOM: creditNote.UOM,
             UnitPrice: creditNote.UnitPrice,
             Ctn: 0
+          }
+
+          if (!tmp.ProjNo[0]) {
+            this._snackBar.open("Error Detected: Missing Proj No. Sales Report might encounter issue.")
           }
 
           if (tmp.ProjNo[0] == "L") {
@@ -756,6 +764,10 @@ export class InvoiceTableComponent implements OnInit {
               UnitPrice: creditNote.UnitPrice,
               Ctn: 0
             };
+
+            if (!tmp.ProjNo[0]) {
+              this._snackBar.open("Error Detected: Missing Proj No. Sales Report might encounter issue.")
+            }
 
             if (tmp.ProjNo[0] == "L") {
               const regex = /(\d+)X[\d.]+L/g;
